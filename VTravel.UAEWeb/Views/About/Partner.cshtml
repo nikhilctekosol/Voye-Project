@@ -1,0 +1,88 @@
+﻿<section class="inner-wrapper-nospace">
+
+	@* <div class="container-sm">
+		<div class="row">
+			<!-- Detail -->
+			<div class="col-md-12">
+				<div class="section-head pb-4">
+					<h3 class="line">VOYE Partner with us</h3>
+				</div>
+			</div>
+		</div>
+		<div class="terms">
+			<div class="wrapper">
+				<h4>Premium hospitality brand, managing exclusive Plantation Villa's, Private Holiday Homes and Heritage Bungalows.</h4>
+				<p><strong>VOYE VACATION HOME RENTAL LLC ("VOYE HOMES")</strong> is a hospitality company which manages premium holiday homes. We manage Property Integrations, Technology Integrations, Marketing, Operational Excellence, Sales Channel Management, End-to-End Reservation Management, and Customer Services of the property. </p>
+					<p><strong>VOYE HOMES </strong>is an exponentially growing organization, trouble shooting the travel and hospitality industry. We together will pursue this business and flourish soon with hard efforts.</p>
+				
+			</div>
+		</div>
+	</div> *@
+
+	<div class="container-sm">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="col-md-12">
+					<div class="section-head pb-4">
+						<h3 class="line">VOYE Partner with us</h3>
+					</div>
+				</div>
+				<div class="terms">
+					<div class="wrapper">
+						<h4>Premium hospitality brand, managing exclusive Plantation Villa's, Private Holiday Homes and Heritage Bungalows.</h4>
+						<p><strong>VOYE VACATION HOME RENTAL LLC ("VOYE HOMES")</strong> is a hospitality company which manages premium holiday homes. We manage Property Integrations, Technology Integrations, Marketing, Operational Excellence, Sales Channel Management, End-to-End Reservation Management, and Customer Services of the property. </p>
+						<p><strong>VOYE HOMES </strong>is an exponentially growing organization, trouble shooting the travel and hospitality industry. We together will pursue this business and flourish soon with hard efforts.</p>
+
+					</div>
+
+					<div class="address pt-4">
+						<h4 class="subtitles pb-2">Contact </h4>
+						<div class="d-flex">
+							<p class="pr-4">+971 52 5604808</p>
+							<p><a href="mailto:nassar@voyehomes.ae">nassar@voyehomes.ae</a></p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-1"></div>
+			<div class="col-md-5">
+				<div class="form-wrap booking partner-form">
+					<form novalidate="" asp-controller="About" asp-action="Sendpartner" method="post">
+						<h4 class="subtitles pb-2">Contact us to empanel your holiday home with us</h4>
+						<div class="fields name">
+							<label for="full_name"><span>Guest name</span></label>
+							<input type="text" name="full_name" placeholder="Mr. Nicolas" class="form-field">
+						</div>
+						<div class="fields name">
+							<label for="email"><span>E-mail</span></label>
+							<input type="text" name="email" placeholder="name@email.com" class="form-field">
+						</div>
+						<div class="fields name">
+							<label for="mobile"><span>Phone</span></label>
+							<input type="text" name="mobile" placeholder="+971 000 000000" class="form-field">
+						</div>
+						<div class="fields name">
+							<label for="property_location"><span>Location</span></label>
+							<input type="text" name="property_location" class="form-field">
+						</div>
+						<div class="fields name">
+							<label for="details"><span>Message</span></label>
+							<textarea type="text" name="details" placeholder="About the property" class="form-field"></textarea>
+						</div>
+						<button class="btn btn-primary c-brand" type="submit">Send a message</button>
+						@{
+							var successMessage = TempData["ContactSuccess"] as string;
+						}
+						@if (!string.IsNullOrEmpty(successMessage))
+						{
+							<div class="alert alert-success" style="margin-top:5px;">
+								@successMessage
+							</div>
+						}
+					</form>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</section>

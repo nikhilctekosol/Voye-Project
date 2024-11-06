@@ -1,0 +1,44 @@
+INSERT INTO email_template (template_name, content) VALUES ('complete_res_first_email', '<table style="border-collapse: collapse;">
+      <tbody>
+          <tr><td colspan="9"><img src="https://voyehomes.com/assets/img/logo.png" width="100" height="50"></td></tr>
+          <tr>
+              <td colspan="9">
+                  <p>Hi Team,</p>
+                  <p>Check the below table for Check-Ins which are to be completed.</p>
+              </td>
+          </tr>
+  	 <tr>
+ 	 <td colspan="9"></td>
+ 	 </tr>
+          <tr>
+              <th style="border:1px solid black;">Sl No</th>
+              <th style="border:1px solid black;">Reservation Id</th>
+              <th style="border:1px solid black;">Agent</th>
+              <th style="border:1px solid black;">Check-In</th>
+              <th style="border:1px solid black;">Guest Name</th>
+              <th style="border:1px solid black;">Email</th>
+              <th style="border:1px solid black;">Phone No</th>
+              <th style="border:1px solid black;">Property</th>
+              <th style="border:1px solid black;">Booking Amount</th>
+          </tr>         
+ 	 #BODY#
+  	 <tr>
+ 	 <td colspan="9"></td>
+ 	 </tr>
+          <tr>
+              <td colspan="9">
+                  <p>Please note that ‘Complete Reservation’ feature will be disabled after midnight of check out date. Hence request 			you to complete your trips at earliest. </p>
+              </td>
+          </tr>
+  	 <tr>
+ 	 <td colspan="9"></td>
+ 	 </tr>
+     	 <tr>
+              <td colspan="9">
+                  <p>Thanks,</p>
+                  <p>Operations Team</p>
+                  <p>VOYE HOMES</p>
+              </td>
+          </tr>
+      </tbody>
+  </table>');

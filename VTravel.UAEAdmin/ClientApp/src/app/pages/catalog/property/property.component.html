@@ -1,0 +1,2194 @@
+
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+
+
+        <div class="row">
+          <div class="col-md-8"> {{property.title}}</div>
+          <div class="col-md-2" *ngIf="property.propertyStatus !='ACTIVE'">
+            <button type="button" (click)="updatePropertyStatus('ACTIVE')" nbButton class="btn btn-sm btn-outline-primary"
+                    [nbSpinner]="loadingStatusSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+              <nb-icon icon="checkmark-outline"></nb-icon>ACTIVATE
+            </button>
+          </div>
+          <div class="col-md-2" *ngIf="property.propertyStatus =='ACTIVE'">
+            <button type="button" (click)="updatePropertyStatus('SUSPENDED')" nbButton class="btn btn-sm btn-outline-secondary"
+                    [nbSpinner]="loadingStatusSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+              <nb-icon icon="slash-outline"></nb-icon>SUSPEND
+            </button>
+          </div>
+          <div class="col-md-2">
+            <button type="button" (click)="openDelete(deleteDialog)" nbButton class="btn btn-sm btn-outline-secondary">
+              <nb-icon icon="trash-outline"></nb-icon>DELETE
+            </button>
+          </div>
+
+
+
+
+        </div>
+      </nb-card-header>
+
+
+    </nb-card>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+
+      <nb-card-body>
+        <nb-tabset fullWidth>
+          <nb-tab tabTitle="Basic Details">
+
+
+            <form (ngSubmit)="onBasicFormSubmit()" #mainBasicForm="ngForm" novalidate>
+              <nb-card>
+                <nb-card-header>
+                  <div class="row">
+                    <div class="col-md-10">Basic Details</div>
+                    <div class="col-md-2">
+                      <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainBasicForm.invalid"
+                              [nbSpinner]="loadingPropertySave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+
+                        <nb-icon icon="save-outline"></nb-icon>UPDATE
+                      </button>
+
+                    </div>
+                  </div>
+
+                </nb-card-header>
+                <nb-card-body>
+
+                  <div class="form-group">
+                    <label class="label">Status</label>
+                    <input type="text" nbInput fullWidth placeholder="Status" readonly="readonly"
+                           autocomplete="off"
+                           name="propertyStatus"
+                           [(ngModel)]="property.propertyStatus"
+                           required #propertyStatus="ngModel"
+                           [status]="propertyStatus.dirty ? (propertyStatus.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>
+                  <div class="form-group">
+                    <label class="label">Title</label>
+                    <input type="text" nbInput fullWidth placeholder="Title"
+                           autocomplete="off"
+                           name="title"
+                           [(ngModel)]="property.title"
+                           required #title="ngModel"
+                           [status]="title.dirty ? (title.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">Property Type</label>
+                    <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                               name="propertyTypeId"
+                               [(ngModel)]="property.propertyTypeId"
+                               required #propertyTypeId="ngModel"
+                               [status]="propertyTypeId.dirty ? (propertyTypeId.invalid  ? 'danger' : 'success') : 'basic'">
+                      <nb-option value={{item.id}} *ngFor="let item of propertyTypes">{{item.typeName}}</nb-option>
+
+                    </nb-select>
+                  </div>
+                  <div class="form-group">
+                    <label class="label">Short Description</label>
+                    <textarea nbInput fullWidth placeholder="Short Description"
+                              autocomplete="off"
+                              name="shortDescription"
+                              [(ngModel)]="property.shortDescription"
+                              required #shortDescription="ngModel"
+                              [status]="shortDescription.dirty ? (shortDescription.invalid  ? 'danger' : 'success') : 'basic'">
+
+                    </textarea>
+                  </div>
+                  <div class="form-group">
+                    <label class="label">Address</label>
+                    <input type="text" nbInput fullWidth placeholder="Address"
+                           autocomplete="off"
+                           name="address"
+                           [(ngModel)]="property.address"
+                           required #address="ngModel"
+                           [status]="address.dirty ? (address.invalid  ? 'danger' : 'success') : 'basic'">
+
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">Country</label>
+                    <nb-select placeholder="[SELECT]" [fullWidth]="true" (selectedChange)="loadStates()"
+                               name="country"
+                               [(ngModel)]="property.country"
+                               required #country="ngModel"
+                               [status]="country.dirty ? (country.invalid  ? 'danger' : 'success') : 'basic'">
+                      <nb-option value={{item.countryCode}} *ngFor="let item of countries">{{item.countryName}}</nb-option>
+
+
+                    </nb-select>
+                  </div>
+                  <div class="form-group">
+                    <label class="label">State</label>
+                    <nb-select placeholder="[SELECT]" [fullWidth]="true" (selectedChange)="loadCities()"
+                               name="state"
+                               [(ngModel)]="property.state"
+                               required #state="ngModel"
+                               [status]="state.dirty ? (state.invalid  ? 'danger' : 'success') : 'basic'">
+                      <nb-option value={{item.stateCode}} *ngFor="let item of states">{{item.stateName}}</nb-option>
+
+
+                    </nb-select>
+                  </div>
+                  <div class="form-group">
+                    <label class="label">Nearest City</label>
+                    <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                               name="city"
+                               [(ngModel)]="property.city"
+                               required #city="ngModel"
+                               [status]="city.dirty ? (city.invalid  ? 'danger' : 'success') : 'basic'">
+                      <nb-option value={{item.cityCode}} *ngFor="let item of cities">{{item.cityName}}</nb-option>
+
+
+                    </nb-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">Destination</label>
+                    <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                               name="destinationId"
+                               [(ngModel)]="property.destinationId"
+                               required #destinationId="ngModel"
+                               [status]="destinationId.dirty ? (destinationId.invalid  ? 'danger' : 'success') : 'basic'">
+                      <nb-option value={{item.id}} *ngFor="let item of destinations">{{item.title}}</nb-option>
+
+
+                    </nb-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">Display Radius</label>
+                    <input type="number" nbInput fullWidth placeholder="Display Radius"
+                           autocomplete="off"
+                           name="displayRadius"
+                           [(ngModel)]="property.displayRadius"
+                           required #displayRadius="ngModel"
+                           [status]="displayRadius.dirty ? (displayRadius.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">Max Occupancy</label>
+                    <input type="number" nbInput fullWidth placeholder="Max Occupancy"
+                           autocomplete="off"
+                           name="maxOccupancy"
+                           [(ngModel)]="property.maxOccupancy"
+                           required #maxOccupancy="ngModel"
+                           [status]="maxOccupancy.dirty ? (maxOccupancy.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>
+                  <div class="form-group">
+                    <label class="label">No. of rooms</label>
+                    <input type="number" nbInput fullWidth placeholder="No. of rooms"
+                           autocomplete="off"
+                           name="roomCount"
+                           [(ngModel)]="property.roomCount"
+                           required #roomCount="ngModel"
+                           [status]="roomCount.dirty ? (roomCount.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>
+                  <div class="form-group">
+                    <label class="label">No. of bathrooms</label>
+                    <input type="number" nbInput fullWidth placeholder="No. of bathrooms"
+                           autocomplete="off"
+                           name="bathroomCount"
+                           [(ngModel)]="property.bathroomCount"
+                           required #bathroomCount="ngModel"
+                           [status]="bathroomCount.dirty ? (bathroomCount.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>
+
+                  <div class="form-group">
+                    <nb-checkbox [checked]="property.gst == '1'" (checkedChange)="togglegst($event)">
+                      GST Applicable?
+                    </nb-checkbox>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">Owner</label>
+                    <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                               name="owner"
+                               [(ngModel)]="property.owner"
+                               required #owner="ngModel"
+                               [status]="owner.dirty ? (owner.invalid  ? 'danger' : 'success') : 'basic'">
+                      <nb-option value={{item.id}} *ngFor="let item of owners">{{item.name}}</nb-option>
+
+
+                    </nb-select>
+                  </div>
+
+                  <!--<div class="form-group" *ngIf="property.gst=='1'">
+                    <label class="label">GST No.</label>
+                    <input type="text" nbInput fullWidth placeholder="GST No."
+                           autocomplete="off"
+                           name="gstno"
+                           [(ngModel)]="property.gstno"
+                           required #gstno="ngModel"
+                           [status]="gstno.dirty ? (gstno.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">Type of Ownership</label>
+                    <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                               name="ownershiptype"
+                               [(ngModel)]="property.ownershiptype"
+                               required #ownershiptype="ngModel"
+                               [status]="ownershiptype.dirty ? (ownershiptype.invalid  ? 'danger' : 'success') : 'basic'">
+                      <nb-option value="INDIVIDUAL">Individual</nb-option>
+                      <nb-option value="COMPANY">Company</nb-option>
+
+                    </nb-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">PAN No.</label>
+                    <input type="text" nbInput fullWidth placeholder="PAN No."
+                           autocomplete="off"
+                           name="pan"
+                           [(ngModel)]="property.pan"
+                           required #pan="ngModel"
+                           [status]="pan.dirty ? (pan.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>-->
+
+                  <div class="form-group">
+                    <label class="label">Reservation Alert</label>
+                    <textarea nbInput fullWidth placeholder="Reservation Alert"
+                              autocomplete="off"
+                              name="reserveAlert"
+                              [(ngModel)]="property.reserveAlert"
+                              #reserveAlert="ngModel"
+                              [status]="reserveAlert.dirty ? (reserveAlert.invalid  ? 'danger' : 'success') : 'basic'">
+
+                    </textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">Reservation Allowed</label>
+                    <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                               name="reserveAllowed"
+                               [(ngModel)]="property.reserveAllowed"
+                               required #reserveAllowed="ngModel"
+                               [status]="reserveAllowed.dirty ? (reserveAllowed.invalid  ? 'danger' : 'success') : 'basic'">
+                      <nb-option value="ALLOWED">Allowed</nb-option>
+                      <nb-option value="NOTALLOWED">Not Allowed</nb-option>
+
+                    </nb-select>
+                  </div>
+
+                  <!--<div class="form-group">
+                    <label class="label">Login Email</label>
+                    <input type="email" nbInput fullWidth placeholder="Login Email"
+                           autocomplete="off"
+                           name="userName"
+                           [(ngModel)]="property.userName"
+                           required #userName="ngModel"
+                           [status]="userName.dirty ? (userName.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>-->
+
+                  <div class="form-group">
+                    <nb-checkbox [checked]="property.hideProperty == '1'" (checkedChange)="togglehideprop($event)">
+                      Hide from property listing
+                    </nb-checkbox>
+                  </div>
+                </nb-card-body>
+              </nb-card>
+            </form>
+
+          </nb-tab>
+          <nb-tab tabTitle="About Property">
+            <nb-card>
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-md-10">About Property</div>
+
+
+                  <div class="col-md-2">
+                    <button (click)="openAboutDialog(aboutDialog)" type="button" nbButton class="btn btn-sm btn-outline-secondary">
+                      <nb-icon icon="edit-outline"></nb-icon>EDIT
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </nb-card-header>
+              <nb-card-body>
+                <div [innerHTML]="property.longDescription">
+
+                </div>
+
+              </nb-card-body>
+
+            </nb-card>
+          </nb-tab>
+          <nb-tab tabTitle="Amenities">
+            <nb-card>
+              <nb-card-header>
+                Amenities
+
+              </nb-card-header>
+              <nb-card-body>
+                <div class="form-group" *ngFor="let item of amenities">
+                  <nb-checkbox [checked]="item.status==1" (checkedChange)="toggleAmenity($event,item.amenityId)">
+                    {{item.amenityName}}
+                  </nb-checkbox>
+                </div>
+
+              </nb-card-body>
+
+            </nb-card>
+
+          </nb-tab>
+          <nb-tab tabTitle="Attributes">
+            <nb-card>
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-md-10">Attributes</div>
+                  <div class="col-md-2">
+
+                    <button type="submit" (click)="openAttributeNew(attributeDialogNew)" nbButton class="btn btn-sm btn-outline-primary">
+                      <nb-icon icon="plus-outline"></nb-icon>ADD
+                    </button>
+                  </div>
+
+                </div>
+
+              </nb-card-header>
+              <nb-card-body>
+
+                <nb-card *ngFor="let item of attributes">
+                  <nb-card-header>
+                    <div class="row">
+                      <div class="col-md-10">{{item.attributeName}}</div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openAttributeDelete(deleteAttributeDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="trash-outline"></nb-icon>
+                        </button>
+                      </div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openAttribute(attributeDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="edit-outline"></nb-icon>
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  </nb-card-header>
+                  <nb-card-body>
+                    <div [innerHTML]="item.longDescription">
+
+                    </div>
+                  </nb-card-body>
+
+                </nb-card>
+              </nb-card-body>
+
+            </nb-card>
+          </nb-tab>
+          <nb-tab tabTitle="Contact Details">
+
+
+            <form (ngSubmit)="onContactFormSubmit()" #mainContactForm="ngForm" novalidate>
+              <nb-card>
+                <nb-card-header>
+                  <div class="row">
+                    <div class="col-md-10">Contact Details</div>
+                    <div class="col-md-2">
+                      <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainContactForm.invalid"
+                              [nbSpinner]="loadingPropertySave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+
+                        <nb-icon icon="save-outline"></nb-icon>UPDATE
+                      </button>
+
+                    </div>
+                  </div>
+
+                </nb-card-header>
+                <nb-card-body>
+
+                  <div class="form-group">
+                    <label class="label">Phone</label>
+                    <input type="text" nbInput fullWidth placeholder="Phone"
+                           autocomplete="off"
+                           name="phone"
+                           [(ngModel)]="property.phone"
+                           required #phone="ngModel"
+                           [status]="phone.dirty ? (phone.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="label">Email</label>
+                    <input type="email" nbInput fullWidth placeholder="Email"
+                           autocomplete="off"
+                           name="email"
+                           [(ngModel)]="property.email"
+                           required #email="ngModel"
+                           [status]="email.dirty ? (email.invalid  ? 'danger' : 'success') : 'basic'">
+                  </div>
+
+                </nb-card-body>
+              </nb-card>
+            </form>
+
+            <nb-card>
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-md-10">Alternate Contacts</div>
+                </div>
+
+              </nb-card-header>
+              <nb-card-body>
+                <div class="form-group" *ngFor="let item of contactlist">
+                  <nb-checkbox [checked]="item.status==1" (checkedChange)="togglecontact($event,item.id)">
+                    {{item.name}} - {{item.contactno}}
+                  </nb-checkbox>
+                </div>
+              </nb-card-body>
+            </nb-card>
+
+          </nb-tab>
+          <nb-tab tabTitle="Media">
+
+            <nb-card>
+              <nb-card-header>
+                <div class="row" *ngIf="!thumbnailEditMode">
+                  <div class="col-md-10">Thumbnail(Res. 300X300)</div>
+                  <div class="col-md-2">
+
+                    <button type="button" (click)="toggleThumbnailEditMode()" nbButton class="btn btn-sm btn-outline-primary">
+                      <nb-icon icon="upload-outline"></nb-icon>CHANGE
+                    </button>
+
+                  </div>
+
+                </div>
+                <div class="row" *ngIf="thumbnailEditMode">
+                  <div class="col-md-3">Select thumbnail</div>
+                  <div class="col-md-5">
+                    <input type="file" #file placeholder="Choose file" />
+                  </div>
+                  <div class="col-md-2">
+
+                    <button type="button" (click)="uploadThumbnail(file.files)" nbButton class="btn btn-sm btn-outline-primary"
+                            [nbSpinner]="loadingPropertySave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+
+                      <nb-icon icon="upload-outline"></nb-icon>UPLOAD
+                    </button>
+
+                  </div>
+                  <div class="col-md-2">
+
+                    <button type="button" (click)="toggleThumbnailEditMode()" nbButton class="btn btn-sm btn-outline-secondary">
+                      <nb-icon icon="close-outline"></nb-icon>CANCEL
+                    </button>
+                  </div>
+
+                </div>
+              </nb-card-header>
+              <nb-card-body>
+                <div class="row">
+                  <div class="col-md-2 thumbnail">
+                    <img src="{{property.thumbnail}}" alt=""
+                         onerror="this.src='assets/images/default.jpg'" />
+
+                  </div>
+                </div>
+              </nb-card-body>
+
+            </nb-card>
+            <nb-card>
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-md-10">Images(Res. 800X400)</div>
+                  <div class="col-md-2">
+
+                    <button type="submit" nbButton (click)="toggleImageEditMode(mediaDialogNew)" class="btn btn-sm btn-outline-primary">
+                      <nb-icon icon="plus-outline"></nb-icon>ADD
+                    </button>
+                  </div>
+
+                </div>
+                <!--<div class="row" *ngIf="imageEditMode">
+                  <div class="col-md-3">Select images</div>
+                  <div class="col-md-5">
+                    <input type="file" #file placeholder="Choose files" multiple />
+                  </div>
+                  <div class="col-md-2">
+
+                    <button type="button" (click)="uploadImages(file.files)" nbButton class="btn btn-sm btn-outline-primary"
+                            [nbSpinner]="loadingImageSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+
+                      <nb-icon icon="upload-outline"></nb-icon>UPLOAD
+                    </button>
+
+                  </div>
+                  <div class="col-md-2">
+
+                    <button type="button" (click)="toggleImageEditMode()" nbButton class="btn btn-sm btn-outline-secondary">
+                      <nb-icon icon="close-outline"></nb-icon>CANCEL
+                    </button>
+                  </div>
+
+                </div>-->
+              </nb-card-header>
+              <nb-card-body>
+
+                <div style="border-bottom:1px solid gray;" *ngFor="let c of transform(images,'category')">
+                  <div class="col-md-12" style="text-align:center;"><u><span style="font-size:18px; font-weight:900;">{{c.key}}</span></u></div>
+                  <div class="row nb-card" *ngFor="let s of transform(c.items,'subcategory')">
+                    <div class="col-md-12"><span style="font-size:15px; font-weight:700;">{{s.key}}</span></div><br />
+                    <div class="col-md-2" style="margin:15px;" *ngFor="let item of s.items"
+                         (click)="openImage(imageDialog,item.id)">
+                      <img src="{{item.url}}" alt="" onerror="this.src='assets/images/default.jpg'" />
+                      <span style="text-align:center;">{{item.room}}</span>
+                    </div>
+                  </div>
+                </div>
+
+              </nb-card-body>
+
+            </nb-card>
+
+
+          </nb-tab>
+          <nb-tab tabTitle="Attractions">
+            <nb-card>
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-md-10">Nearest Attractions</div>
+                  <div class="col-md-2">
+
+                    <button type="submit" (click)="openAttractionNew(nearestAttracDialogNew)" nbButton class="btn btn-sm btn-outline-primary">
+                      <nb-icon icon="plus-outline"></nb-icon>ADD
+                    </button>
+                  </div>
+
+                </div>
+
+              </nb-card-header>
+              <nb-card-body>
+
+                <nb-card *ngFor="let item of attractions">
+                  <nb-card-header>
+                    <div class="row">
+                      <div class="col-md-10">{{item.attractionName}}</div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openAttractionDelete(deleteAttractionDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="trash-outline"></nb-icon>
+                        </button>
+                      </div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openAttraction(attractionDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="edit-outline"></nb-icon>
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  </nb-card-header>
+                  <nb-card-body>
+                    <div class="row">
+
+                      <div class="col-md-6">
+                        {{item.attractionName}}
+                      </div>
+
+                      <div class="col-md-4">Location : {{item.attractLocation}} {{item.distance}} km</div>
+                      <div class="col-md-2">
+                        <img src="{{item.image}}" alt="" width="100" height="100"
+                             onerror="this.src='assets/images/default.jpg'" />
+                      </div>
+
+                    </div>
+
+                  </nb-card-body>
+
+                </nb-card>
+              </nb-card-body>
+
+            </nb-card>
+          </nb-tab>
+          <nb-tab tabTitle="Location Map">
+
+            <nb-card>
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-md-10">Location Map</div>
+                  <div class="col-md-2">
+
+                    <button type="submit" (click)="updateLocation()" nbButton class="btn btn-sm btn-outline-primary"
+                            [nbSpinner]="loadingPropertySave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+                      <nb-icon icon="save-outline"></nb-icon>UPDATE
+                    </button>
+                  </div>
+
+                </div>
+
+              </nb-card-header>
+              <nb-card-body>
+                <div class="form-group">
+                  <google-map [center]="center" (mapClick)="mapClick($event)" [zoom]="8" width="100%" height="36.5625rem">
+                    <map-marker [position]="position"></map-marker>
+                  </google-map>
+                </div>
+
+
+              </nb-card-body>
+
+            </nb-card>
+          </nb-tab>
+          <nb-tab tabTitle="SEO">
+
+            <form (ngSubmit)="onMetaFormSubmit()" #mainSeoForm="ngForm" novalidate>
+              <nb-card>
+                <nb-card-header>
+                  <div class="row">
+                    <div class="col-md-10">SEO</div>
+                    <div class="col-md-2">
+                      <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainSeoForm.invalid"
+                              [nbSpinner]="loadingPropertySave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+
+                        <nb-icon icon="save-outline"></nb-icon>UPDATE
+                      </button>
+
+                    </div>
+                  </div>
+
+                </nb-card-header>
+                <nb-card-body>
+
+                  <div class="form-group">
+                    <label class="label">Page Title</label>
+                    <input type="text" nbInput fullWidth placeholder="Page Title"
+                           autocomplete="off"
+                           name="metaTitle"
+                           [(ngModel)]="property.metaTitle"
+                           required #metaTitle="ngModel"
+                           [status]="metaTitle.dirty ? (metaTitle.invalid  ? 'danger' : 'success') : 'basic'">
+
+                  </div>
+                  <div class="form-group">
+                    <label class="label">Meta Key Words</label>
+                    <textarea nbInput fullWidth placeholder="Meta Keywords"
+                              autocomplete="off"
+                              name="metaKeywords"
+                              [(ngModel)]="property.metaKeywords"
+                              required #metaKeywords="ngModel"
+                              [status]="metaKeywords.dirty ? (metaKeywords.invalid  ? 'danger' : 'success') : 'basic'">
+                    </textarea>
+                  </div>
+                  <div class="form-group">
+                    <label class="label">Meta Description</label>
+                    <textarea nbInput fullWidth placeholder="Meta Description"
+                              autocomplete="off"
+                              name="metaDescription"
+                              [(ngModel)]="property.metaDescription"
+                              required #metaDescription="ngModel"
+                              [status]="metaDescription.dirty ? (metaDescription.invalid  ? 'danger' : 'success') : 'basic'">
+                    </textarea>
+                  </div>
+
+                </nb-card-body>
+              </nb-card>
+            </form>
+
+
+          </nb-tab>
+          <nb-tab tabTitle="Tags">
+            <nb-card>
+              <nb-card-header>
+                Tags
+
+              </nb-card-header>
+              <nb-card-body>
+                <div class="form-group" *ngFor="let item of tags">
+                  <nb-checkbox [checked]="item.status==1" (checkedChange)="toggleTag($event,item.tagId)">
+                    {{item.tagName}}
+                  </nb-checkbox>
+                </div>
+
+              </nb-card-body>
+
+            </nb-card>
+
+          </nb-tab>
+          <nb-tab tabTitle="Pricing">
+            <nb-card>
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-md-10">Pricing</div>
+                  <div class="col-md-2">
+
+                    <button type="submit" (click)="openPriceNew(priceDialogNew)" nbButton class="btn btn-sm btn-outline-primary">
+                      <nb-icon icon="plus-outline"></nb-icon>ADD
+                    </button>
+                  </div>
+
+                </div>
+
+              </nb-card-header>
+              <nb-card-body>
+
+                <nb-card *ngFor="let item of prices">
+                  <nb-card-header>
+                    <div class="row">
+                      <div class="col-md-10">{{item.priceName}}</div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openPriceDelete(deletePriceDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="trash-outline"></nb-icon>
+                        </button>
+                      </div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openPrice(priceDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="edit-outline"></nb-icon>
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  </nb-card-header>
+                  <nb-card-body>
+                    <div class="row">
+                      <div class="col-md-6">MRP:{{item.mrp}}</div>
+                      <div class="col-md-6">Price:{{item.price}}</div>
+                    </div>
+                  </nb-card-body>
+
+                </nb-card>
+              </nb-card-body>
+
+            </nb-card>
+          </nb-tab>
+          <nb-tab tabTitle="Rooms">
+            <nb-card>
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-md-10">Rooms</div>
+                  <div class="col-md-2">
+
+                    <button type="submit" (click)="openRoomNew(roomDialogNew)" nbButton class="btn btn-sm btn-outline-primary">
+                      <nb-icon icon="plus-outline"></nb-icon>ADD
+                    </button>
+                  </div>
+
+                </div>
+
+              </nb-card-header>
+              <nb-card-body>
+
+                <nb-card *ngFor="let item of rooms">
+                  <nb-card-header>
+                    <div class="row">
+                      <div class="col-md-10">{{item.title}}</div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openRoomDelete(deleteRoomDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="trash-outline"></nb-icon>
+                        </button>
+                      </div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openRoom(roomDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="edit-outline"></nb-icon>
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  </nb-card-header>
+                  <nb-card-body>
+                    <div class="row">
+                      <div class="col-md-6">{{item.typeName}}</div>
+                      <div class="col-md-6">{{item.description}}</div>
+                    </div>
+                  </nb-card-body>
+
+                </nb-card>
+              </nb-card-body>
+
+            </nb-card>
+          </nb-tab>
+          <nb-tab tabTitle="Profit Sharing">
+
+            <form (ngSubmit)="onProfitAdd()" #addprofit="ngForm" novalidate>
+              <nb-card>
+                <nb-card-header>
+                  <div class="row">
+                    <div class="col-md-10">Profit Sharing</div>
+                  </div>
+                </nb-card-header>
+
+                <nb-card-body>
+                  <div class="form-group row">
+                    <!--<div class="col-4">
+                      <label class="label">Rooms</label>
+                      <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                                 name="roomId"
+                                 [(ngModel)]="profitsharing.roomId"
+                                 required #roomId="ngModel"
+                                 [status]="roomId.dirty ? (roomId.invalid  ? 'danger' : 'success') : 'basic'">
+                        <nb-option value={{item.id}} *ngFor="let item of rooms">{{item.title}}</nb-option>
+                      </nb-select>
+                    </div>-->
+                    <div class="col-4">
+                      <label class="label">Booking Channel</label>
+                      <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                                 name="channelId"
+                                 [(ngModel)]="profitsharing.channelId"
+                                 required #channelId="ngModel"
+                                 [status]="channelId.dirty ? (channelId.invalid  ? 'danger' : 'success') : 'basic'">
+                        <nb-option value={{item.id}} *ngFor="let item of channels">{{item.channelName}}</nb-option>
+                      </nb-select>
+                    </div>
+                    <!--<div class="col-md-2" style="margin-top: 35px;">
+                      <input type="radio" checked [(ngModel)]="profitsharing.mode" value="Fixed Price" id="rdFixed" name="rdDisplayMode" />
+                      <label for="rdFixed"> Fixed Price</label>
+                    </div>
+                    <div class="col-md-2" style="margin-top:35px;">
+
+                      <input type="radio" [(ngModel)]="profitsharing.mode" value="Percentage" id="rdPerc" name="rdDisplayMode" />
+                      <label for="rdPerc"> Percentage</label>
+                    </div>-->
+
+                  </div>
+
+                  <!--</nb-card-body>
+
+                  </nb-card>
+                  <nb-card>
+                    <nb-card-body>-->
+                  <!--<div class="col-md-4" *ngIf="profitsharing.mode == 'Fixed Price'">
+                    <nb-card-body>
+                      <div class="form-group">
+                        <label class="label">Fixed Price</label>
+                        <input type="number" nbInput fullWidth placeholder="Price per room(Rs)"
+                               autocomplete="off"
+                               name="price"
+                               [(ngModel)]="profitsharing.price"
+                               required #price="ngModel"
+                               [status]="price.dirty ? (price.invalid  ? 'danger' : 'success') : 'basic'">
+                      </div>
+                    </nb-card-body>
+                  </div>-->
+
+                  <div class="col-md-4" *ngIf="profitsharing.mode == 'Percentage'">
+                    <nb-card-body>
+                      <div class="form-group">
+                        <label class="label">Percentage</label>
+                        <input type="number" nbInput fullWidth placeholder="Percentage of share to host(%)"
+                               autocomplete="off"
+                               name="percentage"
+                               [(ngModel)]="profitsharing.percentage"
+                               required #percentage="ngModel"
+                               [status]="percentage.dirty ? (percentage.invalid  ? 'danger' : 'success') : 'basic'">
+                      </div>
+                      <div class="form-group">
+                        <nb-checkbox [checked]="profitsharing.include_food==1" (checkedChange)="toggleprofit($event,'food')">
+                          Includes food rate
+                        </nb-checkbox>
+                      </div>
+                      <div class="form-group">
+                        <nb-checkbox [checked]="profitsharing.include_extra==1" (checkedChange)="toggleprofit($event,'extra')">
+                          Includes extra person rate
+                        </nb-checkbox>
+                      </div>
+                      <div class="form-group">
+                        <nb-checkbox [checked]="profitsharing.taxless_amount==1" (checkedChange)="toggleprofit($event,'taxless')">
+                          Calculate over taxless amount
+                        </nb-checkbox>
+                      </div>
+                    </nb-card-body>
+                  </div>
+                  <div class="col-md-4">
+                    <button type="submit" nbButton class="btn btn-sm btn-outline-primary btn-right" [disabled]="addprofit.invalid"
+                            [nbSpinner]="loadingProfitSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+                      <nb-icon icon="plus-outline"></nb-icon>ADD
+                    </button>
+                  </div>
+                </nb-card-body>
+              </nb-card>
+              <nb-card>
+                <nb-card-body *ngIf="profitDetails.length>0">
+                  <div class="col-md-12">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <!--<th scope="col">Room</th>-->
+                          <th scope="col">Booking Channel</th>
+                          <!--<th scope="col">Mode</th>-->
+                          <!--<th scope="col">Price</th>-->
+                          <th scope="col">Percentage</th>
+                          <th scope="col">Include Food?</th>
+                          <th scope="col">Include Extra Person Rate?</th>
+                          <th scope="col">Calculate Ove Taxless Amount?</th>
+                          <th scope="col"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let item of profitDetails">
+                          <!--<td scope="row">{{item.room}}</td>-->
+                            <td scope="row">{{item.channel}}</td>
+
+                          <!--<td scope="row">{{item.mode}}</td>-->
+                          <!--<td scope="row">{{item.price | number : '1.2-2'}}</td>-->
+                            <td scope="row">{{item.percentage | number : '1.2-2'}}</td>
+                            <td scope="row">{{item.include_food == '1' ? 'Yes' : 'No'}}</td>
+                            <td scope="row">{{item.include_extra == '1' ? 'Yes' : 'No'}}</td>
+                            <td scope="row">{{item.taxless_amount == '1' ? 'Yes' : 'No'}}</td>
+                            <td scope="row"><nb-icon icon="trash-outline" (click)="deleterow(item.id, deleteProfitDialog)"></nb-icon></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </nb-card-body>
+              </nb-card>
+            </form>
+          </nb-tab>
+          <nb-tab tabTitle="Applicable Charges">
+            <nb-card>
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-md-10">Applicable Charges</div>
+                  <div class="col-md-2">
+
+                    <button type="submit" (click)="openChargeNew(chargeDialogNew)" nbButton class="btn btn-sm btn-outline-primary">
+                      <nb-icon icon="plus-outline"></nb-icon>ADD
+                    </button>
+                  </div>
+
+                </div>
+
+              </nb-card-header>
+              <nb-card-body>
+
+                <nb-card *ngFor="let item of chargelist">
+                  <nb-card-header>
+                    <div class="row">
+                      <div class="col-md-10">{{item.name}}</div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openChargeDelete(deleteChargeDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="trash-outline"></nb-icon>
+                        </button>
+                      </div>
+                      <div class="col-md-1">
+                        <button type="button" (click)="openCharge(chargeDialog,item.id)" nbButton class="btn btn-sm btn-outline-secondary">
+                          <nb-icon icon="edit-outline"></nb-icon>
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  </nb-card-header>
+                  <!--<nb-card-body>
+                    <div class="row">
+                      <div class="col-md-6">{{item.typeName}}</div>
+                      <div class="col-md-6">{{item.description}}</div>
+                    </div>
+                  </nb-card-body>-->
+
+                </nb-card>
+              </nb-card-body>
+
+            </nb-card>
+          </nb-tab>
+        </nb-tabset>
+      </nb-card-body>
+
+    </nb-card>
+  </div>
+</div>
+
+
+<ng-template #deleteDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      {{data.title}}
+    </nb-card-header>
+    <nb-card-body>
+      Are you sure to delete this property?
+    </nb-card-body>
+    <nb-card-footer>
+      <div class="row">
+        <div class="col-md-6">
+          <button type="button" nbButton class="btn btn-sm btn-outline-secondary" (click)="ref.close()">
+            <nb-icon icon="slash-outline"></nb-icon>CANCEL
+          </button>
+        </div>
+        <div class="col-md-6">
+          <button type="button" (click)="deleteProperty()" nbButton class="btn btn-sm btn-outline-primary"
+                  [nbSpinner]="loadingDelete" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+            <nb-icon icon="trash-outline"></nb-icon>DELETE
+          </button>
+        </div>
+      </div>
+
+
+    </nb-card-footer>
+  </nb-card>
+</ng-template>
+
+<ng-template #attributeDialogNew let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+
+      <form (ngSubmit)="onNewAttributeSubmit()" #mainNewAttributeForm="ngForm" novalidate>
+        <div class="form-group">
+          <label class="label">Attribute</label>
+          <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                     name="attributeId"
+                     [(ngModel)]="propertyAttribute.attributeId"
+                     required #attributeId="ngModel"
+                     [status]="attributeId.dirty ? (attributeId.invalid  ? 'danger' : 'success') : 'basic'">
+            <nb-option value={{item.id}} *ngFor="let item of attributesAll">{{item.attributeName}}</nb-option>
+          </nb-select>
+        </div>
+        <div class="form-group">
+          <label class="label">Description</label>
+          <ckeditor [config]="{ extraPlugins: 'divarea', height: '250'}"
+                    name="longDescription"
+                    [(ngModel)]="propertyAttribute.longDescription">
+
+          </ckeditor>
+        </div>
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainNewAttributeForm.invalid"
+                [nbSpinner]="loadingAttributeSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>SAVE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #attributeDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+
+      <form (ngSubmit)="onAttributeSubmit()" #mainAttributeForm="ngForm" novalidate>
+        <div class="form-group">
+          <label class="label">Attribute</label>
+          <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                     name="attributeId"
+                     [(ngModel)]="propertyAttribute.attributeId"
+                     required #attributeId="ngModel"
+                     [status]="attributeId.dirty ? (attributeId.invalid  ? 'danger' : 'success') : 'basic'">
+            <nb-option value={{item.id}} *ngFor="let item of attributesAll">{{item.attributeName}}</nb-option>
+          </nb-select>
+        </div>
+        <div class="form-group">
+          <label class="label">Description</label>
+          <ckeditor [config]="{ extraPlugins: 'divarea', height: '250'}"
+                    name="longDescription"
+                    [(ngModel)]="propertyAttribute.longDescription">
+
+          </ckeditor>
+        </div>
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainAttributeForm.invalid"
+                [nbSpinner]="loadingAttributeSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>UPDATE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #deleteAttributeDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      {{data.title}}
+    </nb-card-header>
+    <nb-card-body>
+      Are you sure to delete this attribute?
+    </nb-card-body>
+    <nb-card-footer>
+      <div class="row">
+        <div class="col-md-6">
+          <button type="button" nbButton class="btn btn-sm btn-outline-secondary" (click)="ref.close()">
+            <nb-icon icon="slash-outline"></nb-icon>CANCEL
+          </button>
+        </div>
+        <div class="col-md-6">
+          <button type="button" (click)="deleteAttribute()" nbButton class="btn btn-sm btn-outline-primary"
+                  [nbSpinner]="loadingDelete" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+            <nb-icon icon="trash-outline"></nb-icon>DELETE
+          </button>
+        </div>
+      </div>
+
+
+    </nb-card-footer>
+  </nb-card>
+</ng-template>
+
+<ng-template #imageDialog let-data let-ref="dialogRef">
+  <nb-card style="max-height:500px; overflow:auto;">
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+      <div class="row">
+        <div class="col-12">
+          <div class="property-image">
+            <img src="{{propertyImage.url}}" alt="" width="400" height="200"
+                 onerror="this.src='assets/images/default.jpg'" />
+          </div>
+        </div>
+      </div>
+      <!--<div class="row">-->
+      <!--<div class="col-12">-->
+      <div class="form-group">
+        <label class="label">Image Alt Text</label>
+        <input type="text" nbInput fullWidth placeholder="Image Alt Text"
+               autocomplete="off"
+               name="image_alt"
+               [(ngModel)]="propertyImage.image_alt"
+               #image_alt="ngModel"
+               [status]="image_alt.dirty ? (image_alt.invalid  ? 'danger' : 'success') : 'basic'">
+      </div>
+
+      <div class="form-group">
+        <label class="label">Category</label>
+        <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                   name="category"
+                   [(ngModel)]="propertyImage.categoryid"
+                   #category="ngModel" (selectedChange)="loadsubcategory()">
+          <nb-option value={{item.id}} *ngFor="let item of categorylist">{{item.category_name}}</nb-option>
+        </nb-select>
+      </div>
+
+      <div class="form-group" *ngIf="subcategorylist.length>0">
+        <label class="label">Subcategory</label>
+        <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                   name="subcategory"
+                   [(ngModel)]="propertyImage.subcategoryid"
+                   #subcategory="ngModel">
+          <nb-option value={{item.id}} *ngFor="let item of subcategorylist">{{item.category_name}}</nb-option>
+        </nb-select>
+      </div>
+
+      <div class="form-group" *ngIf="propertyImage.categoryid==2">
+        <label class="label">Room</label>
+        <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                   name="roomid"
+                   [(ngModel)]="propertyImage.roomid"
+                   #roomid="ngModel">
+          <nb-option value={{item.id}} *ngFor="let item of rooms">{{item.title}}</nb-option>
+        </nb-select>
+      </div>
+
+
+
+      <!--</div>-->
+      <!--</div>-->
+
+    </nb-card-body>
+    <nb-card-footer>
+      <button type="button" (click)="updateImageAlt()" nbButton class="btn btn-sm btn-outline-secondary pull-left"
+              [nbSpinner]="loadingImageAlt" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+        <nb-icon icon="save-outline"></nb-icon>UPDATE
+      </button>
+      <button type="button" (click)="deleteImage(propertyImage.id)" nbButton class="btn btn-sm btn-outline-primary" style="float:right;"
+              [nbSpinner]="loadingImageDelete" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+        <nb-icon icon="trash-outline"></nb-icon>DELETE
+      </button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>
+
+<ng-template #priceDialogNew let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+
+      <form (ngSubmit)="onNewPriceSubmit()" #mainNewPriceForm="ngForm" novalidate>
+
+        <div class="form-group">
+          <label class="label">Price Name</label>
+          <input type="text" nbInput fullWidth placeholder="Price Name"
+                 autocomplete="off"
+                 name="priceName"
+                 [(ngModel)]="propertyPrice.priceName"
+                 required #priceName="ngModel"
+                 [status]="priceName.dirty ? (priceName.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <div class="form-group">
+          <label class="label">MRP</label>
+          <input type="number" nbInput fullWidth placeholder="MRP"
+                 autocomplete="off"
+                 name="mrp"
+                 [(ngModel)]="propertyPrice.mrp"
+                 required #mrp="ngModel"
+                 [status]="mrp.dirty ? (mrp.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <div class="form-group">
+          <label class="label">Price</label>
+          <input type="number" nbInput fullWidth placeholder="Price"
+                 autocomplete="off"
+                 name="price"
+                 [(ngModel)]="propertyPrice.price"
+                 required #price="ngModel"
+                 [status]="price.dirty ? (price.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainNewPriceForm.invalid"
+                [nbSpinner]="loadingPriceSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>SAVE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #priceDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+
+      <form (ngSubmit)="onPriceSubmit()" #mainNewPriceForm="ngForm" novalidate>
+
+        <div class="form-group">
+          <label class="label">Price Name</label>
+          <input type="text" nbInput fullWidth placeholder="Price Name"
+                 autocomplete="off"
+                 name="priceName"
+                 [(ngModel)]="propertyPrice.priceName"
+                 required #priceName="ngModel"
+                 [status]="priceName.dirty ? (priceName.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <div class="form-group">
+          <label class="label">MRP</label>
+          <input type="number" nbInput fullWidth placeholder="MRP"
+                 autocomplete="off"
+                 name="mrp"
+                 [(ngModel)]="propertyPrice.mrp"
+                 required #mrp="ngModel"
+                 [status]="mrp.dirty ? (mrp.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <div class="form-group">
+          <label class="label">Price</label>
+          <input type="number" nbInput fullWidth placeholder="Price"
+                 autocomplete="off"
+                 name="price"
+                 [(ngModel)]="propertyPrice.price"
+                 required #price="ngModel"
+                 [status]="price.dirty ? (price.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainNewPriceForm.invalid"
+                [nbSpinner]="loadingPriceSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>SAVE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #deletePriceDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      {{data.title}}
+    </nb-card-header>
+    <nb-card-body>
+      Are you sure to delete this price?
+    </nb-card-body>
+    <nb-card-footer>
+      <div class="row">
+        <div class="col-md-6">
+          <button type="button" nbButton class="btn btn-sm btn-outline-secondary" (click)="ref.close()">
+            <nb-icon icon="slash-outline"></nb-icon>CANCEL
+          </button>
+        </div>
+        <div class="col-md-6">
+          <button type="button" (click)="deletePrice()" nbButton class="btn btn-sm btn-outline-primary"
+                  [nbSpinner]="loadingDelete" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+            <nb-icon icon="trash-outline"></nb-icon>DELETE
+          </button>
+        </div>
+      </div>
+
+
+    </nb-card-footer>
+  </nb-card>
+</ng-template>
+
+<ng-template #aboutDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+
+      <div class="form-group">
+        <label class="label">Description</label>
+        <ckeditor [(ngModel)]="propertyAbout" [config]="{ extraPlugins: 'divarea'}"></ckeditor>
+      </div>
+      <button type="button" (click)="updatePropertyAbout()" nbButton class="btn btn-sm btn-outline-primary"
+              [nbSpinner]="loadingAboutSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+        <nb-icon icon="save-outline"></nb-icon>UPDATE
+      </button>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #roomDialogNew let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body class="res-card-contaier">
+
+      <form (ngSubmit)="onNewRoomSubmit()" #mainNewRoomForm="ngForm" novalidate>
+
+        <div class="form-group">
+          <label class="label">Title</label>
+          <input type="text" nbInput fullWidth placeholder="Title"
+                 autocomplete="off"
+                 name="title"
+                 [(ngModel)]="room.title"
+                 required #title="ngModel"
+                 [status]="title.dirty ? (title.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Description</label>
+          <input type="text" nbInput fullWidth placeholder="Description"
+                 autocomplete="off"
+                 name="description"
+                 [(ngModel)]="room.description"
+                 #description="ngModel"
+                 [status]="description.dirty ? (description.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Room Type</label>
+          <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                     name="roomTypeId"
+                     [(ngModel)]="room.roomTypeId"
+                     required #roomTypeId="ngModel"
+                     [status]="roomTypeId.dirty ? (roomTypeId.invalid  ? 'danger' : 'success') : 'basic'">
+            <nb-option value={{item.id}} *ngFor="let item of roomTypes">{{item.typeName}}</nb-option>
+          </nb-select>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Base Rate</label>
+          <input type="number" nbInput fullWidth placeholder="Base Rate"
+                 autocomplete="off"
+                 name="baserate"
+                 [(ngModel)]="room.baserate"
+                 required #baserate="ngModel"
+                 [status]="baserate.dirty ? (baserate.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">No. of rooms</label>
+          <input type="number" nbInput fullWidth placeholder="No. of rooms"
+                 autocomplete="off"
+                 name="noofrooms"
+                 [(ngModel)]="room.noofrooms"
+                 required #noofrooms="ngModel"
+                 [status]="noofrooms.dirty ? (noofrooms.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Occupancy</label>
+          <div *ngFor="let item of occupancylist1">
+            <!--<input type="checkbox" [checked]="item.checked" (checkedChange)="toggleoccupancy($event,item.id)" [(ngModel)]="item.checked">{{item.title}}-->
+
+            <nb-checkbox [checked]="item.check" (checkedChange)="toggleoccupancy($event,item.id)">
+              {{item.occupancy}}
+            </nb-checkbox>
+          </div>
+
+
+        </div>
+
+        <div class="form-group">
+          <label class="label">Mealplans</label>
+          <div *ngFor="let item of meallist">
+            <!--<input type="checkbox" [checked]="item.checked" (checkedChange)="toggleoccupancy($event,item.id)" [(ngModel)]="item.checked">{{item.title}}-->
+
+            <nb-checkbox [checked]="item.check" (checkedChange)="togglemeals($event,item.id)">
+              {{item.mealplan}}
+            </nb-checkbox>
+          </div>
+
+
+        </div>
+
+        <div class="form-group">
+          <label class="label">Normal Occupancy</label>
+          <input type="number" nbInput fullWidth placeholder="Normal Occupancy"
+                 autocomplete="off"
+                 name="normalocc"
+                 [(ngModel)]="room.normalocc"
+                 required #normalocc="ngModel"
+                 [status]="normalocc.dirty ? (normalocc.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Max. Adults</label>
+          <input type="number" nbInput fullWidth placeholder="Max. Adults"
+                 autocomplete="off"
+                 name="maxadults"
+                 [(ngModel)]="room.maxadults"
+                 required #maxadults="ngModel"
+                 [status]="maxadults.dirty ? (maxadults.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Max. Children</label>
+          <input type="number" nbInput fullWidth placeholder="Max. Children"
+                 autocomplete="off"
+                 name="maxchildren"
+                 [(ngModel)]="room.maxchildren"
+                 required #maxchildren="ngModel"
+                 [status]="maxchildren.dirty ? (maxchildren.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <!--<div class="form-group">
+          <label class="label">Rate Slab</label>
+        </div>
+        <div class="form-group">
+          <label class="label">0 - 6 Years</label>
+          <input type="number" nbInput fullWidth placeholder="0-6 years"
+                 autocomplete="off"
+                 name="years06"
+                 [(ngModel)]="room.years06"
+                 required #years06="ngModel"
+                 [status]="years06.dirty ? (years06.invalid  ? 'danger' : 'success') : 'basic'">
+
+        </div>
+        <div class="form-group">
+          <label class="label">6 - 12 Years</label>
+          <input type="number" nbInput fullWidth placeholder="6-12 years"
+                 autocomplete="off"
+                 name="years612"
+                 [(ngModel)]="room.years612"
+                 required #years612="ngModel"
+                 [status]="years612.dirty ? (years612.invalid  ? 'danger' : 'success') : 'basic'">
+
+        </div>
+        <div class="form-group">
+          <label class="label">Above 12 Years</label>
+          <input type="number" nbInput fullWidth placeholder="Above 12 years"
+                 autocomplete="off"
+                 name="years12"
+                 [(ngModel)]="room.years12"
+                 required #years12="ngModel"
+                 [status]="years12.dirty ? (years12.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>-->
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainNewRoomForm.invalid"
+                [nbSpinner]="loadingRoomSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>SAVE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #roomDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body class="res-card-contaier">
+
+      <form (ngSubmit)="onRoomSubmit()" #mainRoomForm="ngForm" novalidate>
+
+        <div class="form-group">
+          <label class="label">Title</label>
+          <input type="text" nbInput fullWidth placeholder="Title"
+                 autocomplete="off"
+                 name="title"
+                 [(ngModel)]="room.title"
+                 required #title="ngModel"
+                 [status]="title.dirty ? (title.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Description</label>
+          <input type="text" nbInput fullWidth placeholder="Description"
+                 autocomplete="off"
+                 name="description"
+                 [(ngModel)]="room.description"
+                 #description="ngModel"
+                 [status]="description.dirty ? (description.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Room Type</label>
+          <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                     name="roomTypeId"
+                     [(ngModel)]="room.roomTypeId"
+                     required #roomTypeId="ngModel"
+                     [status]="roomTypeId.dirty ? (roomTypeId.invalid  ? 'danger' : 'success') : 'basic'">
+            <nb-option value={{item.id}} *ngFor="let item of roomTypes">{{item.typeName}}</nb-option>
+          </nb-select>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Base Rate</label>
+          <input type="number" nbInput fullWidth placeholder="Base Rate"
+                 autocomplete="off"
+                 name="baserate"
+                 [(ngModel)]="room.baserate"
+                 required #baserate="ngModel"
+                 [status]="baserate.dirty ? (baserate.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">No. of rooms</label>
+          <input type="number" nbInput fullWidth placeholder="No. of rooms"
+                 autocomplete="off"
+                 name="noofrooms"
+                 [(ngModel)]="room.noofrooms"
+                 required #noofrooms="ngModel"
+                 [status]="noofrooms.dirty ? (noofrooms.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Occupancy</label>
+          <div *ngFor="let item of occupancylist1">
+            <!--<input type="checkbox" [checked]="item.checked" (checkedChange)="toggleoccupancy($event,item.id)" [(ngModel)]="item.checked">{{item.title}}-->
+
+            <nb-checkbox [checked]="item.check" (checkedChange)="toggleoccupancy($event,item.id)">
+              {{item.occupancy}}
+            </nb-checkbox>
+          </div>
+
+
+        </div>
+
+        <div class="form-group">
+          <label class="label">Mealplans</label>
+          <div *ngFor="let item of meallist">
+            <!--<input type="checkbox" [checked]="item.checked" (checkedChange)="toggleoccupancy($event,item.id)" [(ngModel)]="item.checked">{{item.title}}-->
+
+            <nb-checkbox [checked]="item.check" (checkedChange)="togglemeals($event,item.id)">
+              {{item.mealplan}}
+            </nb-checkbox>
+          </div>
+
+
+        </div>
+
+        <div class="form-group">
+          <label class="label">Normal Occupancy</label>
+          <input type="number" nbInput fullWidth placeholder="Normal Occupancy"
+                 autocomplete="off"
+                 name="normalocc"
+                 [(ngModel)]="room.normalocc"
+                 required #normalocc="ngModel"
+                 [status]="normalocc.dirty ? (normalocc.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Max. Adults</label>
+          <input type="number" nbInput fullWidth placeholder="Max. Adults"
+                 autocomplete="off"
+                 name="maxadults"
+                 [(ngModel)]="room.maxadults"
+                 required #maxadults="ngModel"
+                 [status]="maxadults.dirty ? (maxadults.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Max. Children</label>
+          <input type="number" nbInput fullWidth placeholder="Max. Children"
+                 autocomplete="off"
+                 name="maxchildren"
+                 [(ngModel)]="room.maxchildren"
+                 required #maxchildren="ngModel"
+                 [status]="maxchildren.dirty ? (maxchildren.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <!--<div class="form-group">
+          <label class="label">Rate Slab</label>
+        </div>
+        <div class="form-group">
+          <label class="label">0 - 6 Years</label>
+          <input type="number" nbInput fullWidth placeholder="0-6 years"
+                 autocomplete="off"
+                 name="years06"
+                 [(ngModel)]="room.years06"
+                 required #years06="ngModel"
+                 [status]="years06.dirty ? (years06.invalid  ? 'danger' : 'success') : 'basic'">
+
+        </div>
+        <div class="form-group">
+          <label class="label">6 - 12 Years</label>
+          <input type="number" nbInput fullWidth placeholder="6-12 years"
+                 autocomplete="off"
+                 name="years612"
+                 [(ngModel)]="room.years612"
+                 required #years612="ngModel"
+                 [status]="years612.dirty ? (years612.invalid  ? 'danger' : 'success') : 'basic'">
+
+        </div>
+        <div class="form-group">
+          <label class="label">Above 12 Years</label>
+          <input type="number" nbInput fullWidth placeholder="Above 12 years"
+                 autocomplete="off"
+                 name="years12"
+                 [(ngModel)]="room.years12"
+                 required #years12="ngModel"
+                 [status]="years12.dirty ? (years12.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>-->
+
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainRoomForm.invalid"
+                [nbSpinner]="loadingRoomSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>SAVE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #deleteRoomDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      {{data.title}}
+    </nb-card-header>
+    <nb-card-body>
+      Are you sure to delete this room?
+    </nb-card-body>
+    <nb-card-footer>
+      <div class="row">
+        <div class="col-md-6">
+          <button type="button" nbButton class="btn btn-sm btn-outline-secondary" (click)="ref.close()">
+            <nb-icon icon="slash-outline"></nb-icon>CANCEL
+          </button>
+        </div>
+        <div class="col-md-6">
+          <button type="button" (click)="deleteRoom()" nbButton class="btn btn-sm btn-outline-primary"
+                  [nbSpinner]="loadingDelete" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+            <nb-icon icon="trash-outline"></nb-icon>DELETE
+          </button>
+        </div>
+      </div>
+
+
+    </nb-card-footer>
+  </nb-card>
+</ng-template>
+
+<ng-template #deleteProfitDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      {{data.title}}
+    </nb-card-header>
+    <nb-card-body>
+      Are you sure to delete this Profit Details?
+    </nb-card-body>
+    <nb-card-footer>
+      <div class="row">
+        <div class="col-md-6">
+          <button type="button" nbButton class="btn btn-sm btn-outline-secondary pop-close-btn" (click)="ref.close()">
+            <nb-icon icon="slash-outline"></nb-icon>CANCEL
+          </button>
+        </div>
+        <div class="col-md-6">
+          <button type="button" (click)="deleteProfit()" nbButton class="btn btn-sm btn-outline-primary"
+                  [nbSpinner]="loadingProfitDelete" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+            <nb-icon icon="trash-outline"></nb-icon>DELETE
+          </button>
+        </div>
+      </div>
+
+
+    </nb-card-footer>
+  </nb-card>
+</ng-template>
+
+<ng-template #chargeDialogNew let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body class="res-card-contaier">
+
+      <form (ngSubmit)="onNewChargeSubmit()" #mainNewChargeForm="ngForm" novalidate>
+
+        <div class="form-group">
+          <label class="label">Charge Name</label>
+          <input type="text" nbInput fullWidth placeholder="Charge Name"
+                 autocomplete="off"
+                 name="name"
+                 [(ngModel)]="appcharge.name"
+                 required #name="ngModel"
+                 [status]="name.dirty ? (name.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group row">
+          <div class="col-md-6" style="margin-top: 35px;">
+            <input type="radio" checked [(ngModel)]="appcharge.chargetype" value="Amount" id="rdAmount" name="rdChargeType" />
+            <label for="rdAmount"> Amount</label>
+          </div>
+          <div class="col-md-6" style="margin-top:35px;">
+
+            <input type="radio" [(ngModel)]="appcharge.chargetype" value="Percentage" id="rdPerc" name="rdChargeType" />
+            <label for="rdPerc"> Percentage</label>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="appcharge.chargetype == 'Amount'">
+          <label class="label">Amount</label>
+          <input type="number" nbInput fullWidth placeholder="Amount"
+                 autocomplete="off"
+                 name="amount"
+                 [(ngModel)]="appcharge.amount"
+                 required #amount="ngModel"
+                 [status]="amount.dirty ? (amount.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group" *ngIf="appcharge.chargetype == 'Percentage'">
+          <label class="label">Percentage</label>
+          <input type="number" nbInput fullWidth placeholder="Percentage"
+                 autocomplete="off"
+                 name="percentage"
+                 [(ngModel)]="appcharge.percentage"
+                 required #percentage="ngModel" (change)="validateFields()"
+                 [status]="percentage.dirty ? (percentage.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Effective From</label>
+          <input nbInput placeholder="Effective From" name="effective"
+                 [nbDatepicker]="from" [(ngModel)]="appcharge.effective"
+                 class="date-picker-box input-rectangle" [fullWidth]="true"
+                 readonly="readonly" required #effective="ngModel"
+                 [status]="effective.dirty ? (effective.invalid  ? 'danger' : 'success') : 'basic'">
+          <nb-datepicker #from></nb-datepicker>
+        </div>
+
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainNewChargeForm.invalid"
+                [nbSpinner]="loadingChargeSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>SAVE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #chargeDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body class="res-card-contaier">
+
+      <form (ngSubmit)="onChargeSubmit()" #mainChargeForm="ngForm" novalidate>
+
+        <div class="form-group">
+          <label class="label">Charge Name</label>
+          <input type="text" nbInput fullWidth placeholder="Charge Name"
+                 autocomplete="off"
+                 name="name"
+                 [(ngModel)]="appcharge.name"
+                 required #name="ngModel"
+                 [status]="name.dirty ? (name.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group row">
+          <div class="col-md-6" style="margin-top: 35px;">
+            <input type="radio" checked [(ngModel)]="appcharge.chargetype" value="Amount" id="rdAmount" name="rdChargeType" />
+            <label for="rdAmount"> Amount</label>
+          </div>
+          <div class="col-md-6" style="margin-top:35px;">
+
+            <input type="radio" [(ngModel)]="appcharge.chargetype" value="Percentage" id="rdPerc" name="rdChargeType" />
+            <label for="rdPerc"> Percentage</label>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="appcharge.chargetype == 'Amount'">
+          <label class="label">Amount</label>
+          <input type="number" nbInput fullWidth placeholder="Amount"
+                 autocomplete="off"
+                 name="amount"
+                 [(ngModel)]="appcharge.amount"
+                 required #amount="ngModel"
+                 [status]="amount.dirty ? (amount.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group" *ngIf="appcharge.chargetype == 'Percentage'">
+          <label class="label">Percentage</label>
+          <input type="number" nbInput fullWidth placeholder="Percentage"
+                 autocomplete="off"
+                 name="percentage"
+                 [(ngModel)]="appcharge.percentage"
+                 required #percentage="ngModel" (change)="validateFields()"
+                 [status]="percentage.dirty ? (percentage.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Effective From</label>
+          <input nbInput placeholder="Effective From" name="effective"
+                 [nbDatepicker]="from" [(ngModel)]="appcharge.effective"
+                 class="date-picker-box input-rectangle" [fullWidth]="true"
+                 readonly="readonly" required #effective="ngModel"
+                 [status]="effective.dirty ? (effective.invalid  ? 'danger' : 'success') : 'basic'">
+          <nb-datepicker #from (dateChange)="validateFields()"></nb-datepicker>
+        </div>
+
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainChargeForm.invalid"
+                [nbSpinner]="loadingChargeSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>SAVE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #deleteChargeDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      {{data.title}}
+    </nb-card-header>
+    <nb-card-body>
+      Are you sure to delete this Applicable Charge Details?
+    </nb-card-body>
+    <nb-card-footer>
+      <div class="row">
+        <div class="col-md-6">
+          <button type="button" nbButton class="btn btn-sm btn-outline-secondary pop-close-btn" (click)="ref.close()">
+            <nb-icon icon="slash-outline"></nb-icon>CANCEL
+          </button>
+        </div>
+        <div class="col-md-6">
+          <button type="button" (click)="deletecharge()" nbButton class="btn btn-sm btn-outline-primary"
+                  [nbSpinner]="loadingChargeDelete" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+            <nb-icon icon="trash-outline"></nb-icon>DELETE
+          </button>
+        </div>
+      </div>
+
+
+    </nb-card-footer>
+  </nb-card>
+</ng-template>
+
+<ng-template #mediaDialogNew let-data let-ref="dialogRef">
+  <nb-card style="max-height:500px; overflow:auto;">
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body class="res-card-contaier">
+
+      <form (ngSubmit)="uploadImages(file.files)" #mainNewChargeForm="ngForm" novalidate>
+
+        <div class="row">
+          <div class="col-md-4">Select images</div>
+          <div class="col-md-8">
+            <input type="file" #file placeholder="Choose files" multiple />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Category</label>
+          <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                     name="category"
+                     [(ngModel)]="propertyImage.categoryid"
+                     #category="ngModel" (selectedChange)="loadsubcategory()">
+            <nb-option value={{item.id}} *ngFor="let item of categorylist">{{item.category_name}}</nb-option>
+          </nb-select>
+        </div>
+
+        <div class="form-group" *ngIf="subcategorylist.length>0">
+          <label class="label">Subcategory</label>
+          <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                     name="subcategory"
+                     [(ngModel)]="propertyImage.subcategoryid"
+                     #subcategory="ngModel">
+            <nb-option value={{item.id}} *ngFor="let item of subcategorylist">{{item.category_name}}</nb-option>
+          </nb-select>
+        </div>
+
+        <div class="form-group" *ngIf="propertyImage.categoryid==2">
+          <label class="label">Room</label>
+          <nb-select placeholder="[SELECT]" [fullWidth]="true"
+                     name="roomid"
+                     [(ngModel)]="propertyImage.roomid"
+                     #roomid="ngModel">
+            <nb-option value={{item.id}} *ngFor="let item of rooms">{{item.title}}</nb-option>
+          </nb-select>
+        </div>
+
+
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainNewChargeForm.invalid"
+                [nbSpinner]="loadingChargeSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>SAVE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #nearestAttracDialogNew let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+
+      <form (ngSubmit)="onNewAttractionSubmit()" #mainNewAttractionForm="ngForm" novalidate>
+        <div class="form-group">
+          <label class="label">Nearest Attraction Name</label>
+          <input type="text" nbInput fullWidth placeholder="Nearest Attraction Name"
+                 autocomplete="off"
+                 name="attractionName"
+                 [(ngModel)]="nearestAttrac.attractionName"
+                 required #attractionName="ngModel"
+                 [status]="attractionName.dirty ? (attractionName.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <div class="form-group">
+          <label class="label">Location</label>
+          <input type="text" nbInput fullWidth placeholder="Location"
+                 autocomplete="off"
+                 name="attractLocation"
+                 [(ngModel)]="nearestAttrac.attractLocation"
+                 required #attractLocation="ngModel"
+                 [status]="attractLocation.dirty ? (attractLocation.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <div class="form-group">
+          <label class="label">Distance in km</label>
+          <input type="number" nbInput fullWidth placeholder="Distance in KM"
+                 autocomplete="off"
+                 name="distance"
+                 [(ngModel)]="nearestAttrac.distance"
+                 required #distance="ngModel"
+                 [status]="distance.dirty ? (distance.invalid  ? 'danger' : 'success') : 'basic'"
+                 step="any" min="0">
+        </div>
+        <div class="form-group">
+          <label class="label">Image URL</label>
+          <textarea nbInput fullWidth placeholder="Image URL"
+                    autocomplete="off"
+                    name="image"
+                    [(ngModel)]="nearestAttrac.image"
+                    required #image="ngModel"
+                    [status]="image.dirty ? (image.invalid ? 'danger' : 'success') : 'basic'">
+          </textarea>
+        </div>
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainNewAttractionForm.invalid"
+                [nbSpinner]="loadingSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>SAVE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #attractionDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      <div class="row">
+        <div class="col-md-10">{{data.title}}</div>
+        <div class="col-md-2">
+          <button type="button" (click)="ref.close()" nbButton class="btn btn-sm btn-outline-secondary">
+            <nb-icon icon="close-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+
+      <form (ngSubmit)="onAttractionSubmit()" #mainAttractionForm="ngForm" novalidate>
+        <div class="form-group">
+          <label class="label">Attraction Name</label>
+          <input type="text" nbInput fullWidth placeholder="Attraction Name"
+                 autocomplete="off"
+                 name="attractionName"
+                 [(ngModel)]="nearestAttrac.attractionName"
+                 required #attractionName="ngModel"
+                 [status]="attractionName.dirty ? (attractionName.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <div class="form-group">
+          <label class="label">Location</label>
+          <input type="text" nbInput fullWidth placeholder="Location"
+                 autocomplete="off"
+                 name="attractLocation"
+                 [(ngModel)]="nearestAttrac.attractLocation"
+                 required #attractLocation="ngModel"
+                 [status]="attractLocation.dirty ? (attractLocation.invalid  ? 'danger' : 'success') : 'basic'">
+        </div>
+        <div class="form-group">
+          <label class="label">Distance in km</label>
+          <input type="number" nbInput fullWidth placeholder="Distance in KM"
+                 autocomplete="off"
+                 name="distance"
+                 [(ngModel)]="nearestAttrac.distance"
+                 required #distance="ngModel"
+                 [status]="distance.dirty ? (distance.invalid  ? 'danger' : 'success') : 'basic'"
+                 step="any" min="0">
+        </div>
+        <div class="form-group">
+          <label class="label">Image URL</label>
+          <textarea nbInput fullWidth placeholder="Image URL"
+                    autocomplete="off"
+                    name="image"
+                    [(ngModel)]="nearestAttrac.image"
+                    required #image="ngModel"
+                    [status]="image.dirty ? (image.invalid ? 'danger' : 'success') : 'basic'">
+          </textarea>
+        </div>
+
+        <button type="submit" nbButton class="btn btn-sm btn-outline-primary" [disabled]="mainAttractionForm.invalid"
+                [nbSpinner]="loadingSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+          <nb-icon icon="save-outline"></nb-icon>UPDATE
+        </button>
+      </form>
+
+
+    </nb-card-body>
+  </nb-card>
+</ng-template>
+
+<ng-template #deleteAttractionDialog let-data let-ref="dialogRef">
+  <nb-card>
+    <nb-card-header>
+      {{data.title}}
+    </nb-card-header>
+    <nb-card-body>
+      Are you sure to delete this Attraction?
+    </nb-card-body>
+    <nb-card-footer>
+      <div class="row">
+        <div class="col-md-6">
+          <button type="button" nbButton class="btn btn-sm btn-outline-secondary" (click)="ref.close()">
+            <nb-icon icon="slash-outline"></nb-icon>CANCEL
+          </button>
+        </div>
+        <div class="col-md-6">
+          <button type="button" (click)="deleteAttraction()" nbButton class="btn btn-sm btn-outline-primary"
+                  [nbSpinner]="loadingSave" nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+            <nb-icon icon="trash-outline"></nb-icon>DELETE
+          </button>
+        </div>
+      </div>
+
+
+    </nb-card-footer>
+  </nb-card>
+</ng-template>
+

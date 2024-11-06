@@ -1,0 +1,135 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <div class="row">
+          <div class="col-md-4">
+            Reservation Report
+          </div>
+        </div>
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row">
+          <div class="col-md-4">
+            <input #autoInput
+                   nbInput
+                   [(ngModel)]="selectedPropertyName"
+                   type="text"
+                   (input)="onChange()"
+                   placeholder="[SELECT PROPERTY]"
+                   [nbAutocomplete]="auto"
+                   [fullWidth]="true" />
+
+            <nb-autocomplete #auto (selectedChange)="onPropSelectionChange($event)">
+
+              <nb-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+                {{ option.title }}
+              </nb-option>
+
+
+            </nb-autocomplete>
+          </div>
+          <div class="col-md-3">
+            <input nbInput placeholder="From Date" name="fromDate"
+                   [nbDatepicker]="from" [(ngModel)]="searchdata.fromDate"
+                   class="date-picker-box input-rectangle" [fullWidth]="true"
+                   readonly="readonly" required #fromDate="ngModel"
+                   [status]="fromDate.dirty ? (fromDate.invalid  ? 'danger' : 'success') : 'basic'">
+            <nb-datepicker #from></nb-datepicker>
+          </div>
+          <div class="col-md-3">
+            <input nbInput placeholder="To Date" name="toDate"
+                   [nbDatepicker]="to" [(ngModel)]="searchdata.toDate"
+                   class="date-picker-box input-rectangle" [fullWidth]="true"
+                   readonly="readonly" required #toDate="ngModel"
+                   [status]="toDate.dirty ? (toDate.invalid  ? 'danger' : 'success') : 'basic'">
+            <nb-datepicker #to></nb-datepicker>
+          </div>
+
+          <div class="col-md-1">
+            <a nbButton class="btn btn-sm btn-outline-primary" (click)="search()">
+              <nb-icon icon="search-outline"></nb-icon>
+            </a>
+          </div>
+        </div>
+
+      </nb-card-body>
+    </nb-card>
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    
+    <nb-card style="overflow:auto;">
+
+
+      <nb-card-body style="max-width:82vw; max-height:68vh;">
+        <a nbButton class="btn btn-sm btn-outline-primary" (click)="exportToExcel()">
+          Export to excel
+        </a>
+        <table class="table table-striped custom-table" id="tblData">
+          <thead>
+            <tr>
+              <th scope="col">ReservationID</th>
+              <th scope="col">Property</th>
+              <th scope="col">Created By</th>
+              <th scope="col">Created On</th>
+              <th scope="col">Customer Name</th>
+              <th scope="col">Customer Email</th>
+              <th scope="col">Customer Phone</th>
+              <th scope="col">Channel Name</th>
+              <th scope="col">No of Rooms</th>
+              <th scope="col">No of Guests</th>
+              <th scope="col">Final Amount</th>
+              <th scope="col">Advance Payment</th>
+              <th scope="col">Part Payment</th>
+              <th scope="col">Balance Payment</th>
+              <th scope="col">Children (0-6 Years)</th>
+              <th scope="col">Children (6-12 Years)</th>
+              <th scope="col">Adults (12+ Years)</th>
+              <th scope="col">TDS</th>
+              <th scope="col">OT Commission</th>
+              <th scope="col">Details</th>
+              <th scope="col">Calc_amount</th>
+              <th scope="col">Discount</th>
+              <th scope="col">Booking Amount</th>
+              <th scope="col">Booking Agent</th>
+              <th scope="col">Comments</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let option of reservationdata">
+              <td scope="row">{{ option.reservation_id }}</td>
+              <td scope="row">{{ option.property }}</td>
+              <td scope="row">{{ option.created_by }}</td>
+              <td scope="row">{{ option.created_on }}</td>
+              <td scope="row">{{ option.cust_name }}</td>
+              <td scope="row">{{ option.cust_email }}</td>
+              <td scope="row">{{ option.cust_phone }}</td>
+              <td scope="row">{{ option.channel_name }}</td>
+              <td scope="row">{{ option.noOfRooms }}</td>
+              <td scope="row">{{ option.no_of_guests }}</td>
+              <td scope="row">{{ option.final_amount }}</td>
+              <td scope="row">{{ option.advancepayment }}</td>
+              <td scope="row">{{ option.partpayment }}</td>
+              <td scope="row">{{ option.balancepayment }}</td>
+              <td scope="row">{{ option.Less_Than_6_Years }}</td>
+              <td scope="row">{{ option.childeren_6_to_11_years }}</td>
+              <td scope="row">{{ option.adults_12_years_and_above }}</td>
+              <td scope="row">{{ option.tds }}</td>
+              <td scope="row">{{ option.ot_commission }}</td>
+              <td scope="row">{{ option.details }}</td>
+              <td scope="row">{{ option.calc_amount }}</td>
+              <td scope="row">{{ option.discount }}</td>
+              <td scope="row">{{ option.booking_amount }}</td>
+              <td scope="row">{{ option.booking_agent }}</td>
+              <td scope="row">{{ option.comments }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

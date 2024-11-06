@@ -1,0 +1,110 @@
+USE `vtravel`;
+DROP procedure IF EXISTS `settlement_report`;
+
+USE `vtravel`;
+DROP procedure IF EXISTS `vtravel`.`settlement_report`;
+;
+
+DELIMITER $$
+USE `vtravel`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `settlement_report`(IN `propertyId` INT, IN `dtfrom` VARCHAR(50), IN `dtto` VARCHAR(50))
+BEGIN
+
+CREATE TEMPORARY TABLE temp_rooms (
+		  slno int primary key,
+		  room_id int,
+		  room varchar(100),
+		  booking_id int,
+		  min_rent decimal(18,2),
+		  no_of_nights int,
+		  amount decimal(18,2),
+		  newba decimal(18,2),
+		  discount decimal(18,2),
+		  minus_disc decimal(18,2),
+		  is_gst varchar(10),
+		  gst_percent decimal(18,2),
+		  gst_amount decimal(18,2),
+		  taxable decimal(18,2),
+		  no_of_guests int,
+		  agreed_rent decimal(18,2),
+		  agreed_perc decimal(18,2),
+		  agreed_gst decimal(18,2)
+		);
+        
+        CREATE TEMPORARY TABLE temp_res (
+		  slno int primary key,
+		  reservation_id int,
+          created_on datetime,
+          propertyId int,
+          property varchar(100),
+          channel_id int,
+          channel_name varchar(20),
+          destination_id int,
+          destination varchar(50),
+          nationality varchar(50),
+          cust_name varchar(50),
+          cust_email varchar(50),
+          cust_phone varchar(50),
+          res_status varchar(10),
+          no_of_units int,
+          no_of_nights int,
+          no_of_guests int,
+          host_perc decimal(18,2),
+          agreed_rent decimal(18,2),
+          booking_amount decimal(18,2),
+          commission decimal(18,2),
+		  is_gst varchar(10),
+		  gst decimal(18,2),
+		  taxable decimal(18,2),
+		  tds decimal(18,2),
+		  rent_after_ota decimal(18,2),
+		  rent_after_OTA_share decimal(18,2),
+		  agreed_rent_gst decimal(18,2),
+		  agreed_host_share decimal(18,2),
+		  advancepayment decimal(18,2),
+		  partpayment decimal(18,2),
+		  balancepayment decimal(18,2)
+		);
+        
+        insert into temp_rooms
+        select ROW_NUMBER() OVER(ORDER BY r.id) slno, rm.id room_id, rm.title room, r.id reservation_id, rm.base_rate
+		, datediff(rr.to_date, rr.from_date) no_of_nights, rr.amount, rr.new_ba, rr.discount, rr.new_ba - rr.discount minus_disc, case when IFNULL(p.is_gst, 0) = 0 then 'No' else 'Yes' end is_gst, ts.tax
+		, ROUND((rr.new_ba - rr.discount) * ts.tax / (100 + ts.tax),2) gst, rr.new_ba - rr.discount - ROUND((rr.new_ba - rr.discount) * ts.tax / (100 + ts.tax),2) taxable, rr.years06 + rr.years612 + rr.years12 no_of_guests
+        , rm.base_rate * datediff(rr.to_date, rr.from_date) agreed_rent, ts1.tax, ROUND(rm.base_rate * datediff(rr.to_date, rr.from_date) * ts1.tax / (100 + ts1.tax),2) agreed_gst
+		from reservation r
+		left join reserve_rooms rr on rr.reservation_id = r.id
+		left join property p on p.id = r.property_id
+		left join room rm on rm.id = rr.room_id
+		left join tax_slab ts on ts.from <= ((rr.new_ba - rr.discount) / datediff(rr.to_date, rr.from_date)) and ts.to >= ((rr.new_ba - rr.discount) / datediff(rr.to_date, rr.from_date)) and ts.is_active = 'Y'
+		left join tax_slab ts1 on ts1.from <= rm.base_rate and ts1.to >= rm.base_rate and ts1.is_active = 'Y'
+		where r.created_on between dtfrom and DATE_ADD(dtto, INTERVAL 1 DAY) and r.is_active = 'Y' and (rm.property_id = propertyId or propertyId = 0);
+        
+        insert into temp_res
+        select ROW_NUMBER() OVER(ORDER BY r.id), r.id reservation_id, r.created_on, p.id property_id, p.title property, bc.id channel_id, bc.channel_name, d.id destination_id, d.title destination, IFNULL(c.country_name, 'India') nationality
+        , r.cust_name, r.cust_email, r.cust_phone, r.res_status, COUNT(tr.booking_id) no_of_units, SUM(tr.no_of_nights) no_of_nights, SUM(tr.no_of_guests) no_of_guests, pd.percentage host_perc, SUM(tr.agreed_rent) agreed_rent, SUM(tr.newba) - SUM(tr.discount) booking_amount
+        , r.commission, case when IFNULL(p.is_gst, 0) = 0 then 'No' else 'Yes' end is_gst, SUM(tr.gst_amount) gst, SUM(tr.taxable) taxable, case when bc.channel_name in ('voyehomes.com', 'Property Owner') then ROUND(SUM(tr.taxable) * IFNULL(bc.tds,0) / 100, 2) else r.tds end tds
+        , SUM(tr.taxable) - (case when bc.channel_name in ('voyehomes.com', 'Property Owner') then ROUND(SUM(tr.taxable) * IFNULL(bc.tds,0) / 100, 2) else r.tds end) - r.commission RentafterOTA
+        , (SUM(tr.taxable) - (case when bc.channel_name in ('voyehomes.com', 'Property Owner') then ROUND(SUM(tr.taxable) * IFNULL(bc.tds,0) / 100, 2) else r.tds end) - r.commission) * pd.percentage /100 RentafterOTA_share
+        , SUM(tr.agreed_rent) - SUM(tr.agreed_gst) agreed_rent_after_tax, ROUND((SUM(tr.agreed_rent) - SUM(tr.agreed_gst))* pd.percentage / 100,2) agreed_host_share, r.advancepayment, r.partpayment, r.balancepayment
+        from temp_rooms tr
+        left join reservation r on r.id = tr.booking_id
+        left join property p on p.id = r.property_id
+		left join booking_channel bc on bc.id = r.booking_channel_id
+		left join destination d on d.id = p.destination_id
+		left join country c on c.country_code = r.country
+        left join profit_details pd on pd.property_id = r.property_id and r.booking_channel_id = pd.channel_id
+        group by r.id;
+        
+        select t.*, t.rent_after_ota - t.voye_share - t.voye_share_tax host_share, case when t.is_gst = 'Yes' then t.voye_share + t.voye_share_tax else t.voye_share + t.voye_share_tax + t.gst end as final_voye_comm
+        , case when t.is_gst = 'Yes' then t.rent_after_ota - t.voye_share - t.voye_share_tax + t.gst else t.rent_after_ota - t.voye_share - t.voye_share_tax end as final_host_comm
+        from
+        (select *, case when tr.rent_after_OTA <= tr.agreed_host_share then 0 else (case when tr.rent_after_OTA_share > tr.agreed_host_share then ROUND(tr.rent_after_OTA * (100 - tr.host_perc) / 100, 2) else 
+        (case when tr.is_gst = 'Yes' then (ROUND((tr.rent_after_OTA - tr.agreed_host_share) * 100 / 118, 2)) else (ROUND((tr.rent_after_OTA - tr.agreed_host_share), 2)) end) end) end voye_share
+        , case when tr.is_gst = 'Yes' then (case when tr.rent_after_OTA <= tr.agreed_host_share then 0 else (case when tr.rent_after_OTA_share > tr.agreed_host_share then ROUND((tr.rent_after_OTA * (100 - tr.host_perc) / 100) * 18 / 100, 2) else 
+        ROUND(((tr.rent_after_OTA - tr.agreed_host_share) * 100 / 118) * 18 / 100, 2) end) end) else 0 end voye_share_tax
+        from temp_res tr) t;
+        
+        drop TEMPORARY TABLE temp_rooms;
+        drop TEMPORARY TABLE temp_res;
+        
+END

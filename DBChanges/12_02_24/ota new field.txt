@@ -1,0 +1,13 @@
+ALTER TABLE `vtravel`.`reserve_rooms` 
+ADD COLUMN `ota_amount` FLOAT NULL DEFAULT 0 AFTER `discount`;
+
+ALTER TABLE `vtravel`.`reserve_rooms` 
+ADD COLUMN `new_ba` FLOAT NULL DEFAULT 0 AFTER `ota_amount`;
+
+ALTER TABLE `vtravel`.`reserve_rooms` 
+DROP COLUMN `ota_amount`,
+ADD COLUMN `comments` VARCHAR(200) NULL AFTER `new_ba`;
+
+
+ALTER TABLE `vtravel`.`reservation` 
+ADD COLUMN `tds` FLOAT NULL DEFAULT 0 AFTER `country`;

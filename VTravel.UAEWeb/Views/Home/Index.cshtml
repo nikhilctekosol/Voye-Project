@@ -1,0 +1,402 @@
+﻿@model HomeViewModel
+
+@if (Model.bannerList.Count > 0)
+{
+	<section class="main-hero fade-in">
+		<div class="container">
+			<div class="main-slider">
+				<div class="banner main">
+					@* @foreach (var banner in Model.bannerList)
+					{ *@
+						<div class="pattern">
+							<img src="img/brand-pattern-banner.png" alt="Voye Apartment for rent" class="img-fluid" />
+						</div>
+						<div class="title">
+							<div class="title-tag">
+								<span class="float-right">Experience the Exclusive #private Stays</span>
+								<h1>Meet the Luxury</h1>
+							</div>
+						<h2 class="line">Experience premium holiday rentals in Dubai with VOYE HOMES, offering exceptional stays designed for comfort, style, and unforgettable experiences</h2>
+							<div class="values">
+								<div class="privacy">Choice for <br /> privacy</div>
+								<div class="vacation">Ambience of <br /> A vacation</div>
+								<div class="hotel">excellence of <br /> A hotel</div>
+							</div>
+						<a href="#stay" class="link arrow">Explore Now</a>
+						</div>
+					@* } *@
+					</div>
+			</div>
+		</div>
+	</section>
+}
+	<!-- Property Listing -->
+	<section id="stay" class="properties">
+		<div class="container">
+			<div class="section-head">
+			<h3 class="line">Luxurious Holiday Homes in Dubai</h3>
+				<h4 class="h1"><span class="t-italic c-brand">Ensuring</span> superior experience</h4>
+			</div>
+			<div class="owl-carousel">
+			@{
+				// Find the tag(s) in Model.tagList where id == 1
+				var matchingTags = Model.tagList.Where(tag => tag.id == 1).ToList();
+			}
+			@if (matchingTags.Count > 0)
+					{
+						@foreach (var p in matchingTags)
+						{
+							if (p.propertyList.Length > 0)
+							{
+						@foreach (var property in p.propertyList)
+						{
+							<a href="~/property/detail/@General.GetUrlSlug(property.perma_title)-@General.EncodeString(property.id.ToString())">
+								<div class="card">
+									<div class="img" style="background-image:url('@property.thumbnail.Replace("/image/upload/", "/image/upload/w_900,c_scale/")');">
+										@* <img src="@property.thumbnail.Replace("/image/upload/", "/image/upload/w_300,c_scale/")" alt="Voye Apartment for rent" class="img-fluid" /> *@
+									</div>
+									<div class="project-details">
+										@if (property.priceList != null)
+										{
+											if (property.priceList.Length > 0)
+											{
+												@* <div class="price">from ₹@property.priceList[0].price</div> *@
+												<div class="project-price">AED @property.priceList[0].price.ToString("F2")</div>
+											}
+										}
+
+										<h3 class="project-name">@* VOYE HOMES Al Qanat القناة  Dubai *@ @property.title</h3>
+										<div class="view">
+											<span class="sqft">950 Sqft</span>
+											<span class="bhk">@property.roomCount BHK</span>
+											<span class="bath">@property.bathroomCount Bath</span>
+										</div>
+									</div>
+								</div>
+							</a>
+						}
+					}
+						}
+					}
+			</div>
+		</div>
+	</section>
+
+	<!-- News & Climate -->
+	<section class="news-climate">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-5" style="display:none;">
+					<div class="news">
+						<div class="row">
+							<div class="col-md-4">
+								<h4 class="h1">News</h4>
+								<a href="#" class="link arrow">Explore Now</a>
+							</div>
+							<div class="col-md-8">
+								<div class="wrapper">
+									<div class="date">20.08.2024 <span class="location-tag">#dubai</span></div>
+									<div id="news_ticker">
+										<ul>
+											<li>There are plenty of shades of yellow, which all contain their own unique color</li>
+											<li>A List of Yellow Shades</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-10" style="text-align:center;">
+					<div class="weather-widget">
+						<div class="temperature">
+						@* <small>2.12 pm, Aug 28,2024</small> *@
+						<small>@ViewData["last_up"]</small>
+							<div class="value">
+							@ViewData["Temp"]<sup>°C</sup>
+								<div id="sun" class="icon">
+
+									@* <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 24 24"> *@
+										@* <path d="M 11 0 L 11 3 L 13 3 L 13 0 L 11 0 z M 4.2226562 2.8085938 L 2.8085938 4.2226562 L 4.9296875 6.34375 L 6.34375 4.9296875 L 4.2226562 2.8085938 z M 19.777344 2.8085938 L 17.65625 4.9296875 L 19.070312 6.34375 L 21.191406 4.2226562 L 19.777344 2.8085938 z M 12 5 A 7 7 0 0 0 5 12 A 7 7 0 0 0 12 19 A 7 7 0 0 0 19 12 A 7 7 0 0 0 12 5 z M 0 11 L 0 13 L 3 13 L 3 11 L 0 11 z M 21 11 L 21 13 L 24 13 L 24 11 L 21 11 z M 4.9296875 17.65625 L 2.8085938 19.777344 L 4.2226562 21.191406 L 6.34375 19.070312 L 4.9296875 17.65625 z M 19.070312 17.65625 L 17.65625 19.070312 L 19.777344 21.191406 L 21.191406 19.777344 L 19.070312 17.65625 z M 11 21 L 11 24 L 13 24 L 13 21 L 11 21 z"></path> *@
+									@Html.Raw(@ViewData["icon"])
+									@* </svg> *@
+								@* <img x="0px" y="0px" width="30" height="30" viewBox="0 0 24 24" src="@ViewData["icon"]" /> *@
+								</div>
+							</div>
+						<small>@ViewData["details"]</small>
+						</div>
+						<div class="sub-value">
+							<p>Humidity</p>
+							<div class="value">
+							@ViewData["Humidity"]%
+							</div>
+						</div>
+						<div class="sub-value">
+							<p>Sunrise</p>
+							<div class="value">
+							@ViewData["sunrise"]
+							</div>
+						</div>
+						<div class="sub-value">
+							<p>Sunset</p>
+							<div class="value">
+							@ViewData["sunset"]
+							</div>
+						</div>
+					</div>
+					<!-- the DIV that will contain the widget -->
+					<div class="weatherWidget d-none"></div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Testimonials -->
+	<section class="testimonials">
+		<div class="container">
+		<h4 class="h1 text-center">A Legacy of Trust and Quality </h4>
+		<p class="text-center pb-4 pt-4">We have consistently delivered top-rated services </p>
+			<div class="wrapper clearfix">
+
+				<div class="enable-animation">
+
+					<div class="marquee">
+						<ul class="marquee__content">
+							<li>
+								<div class="item">
+									<div class="profile"><img src="~/img/avatar-1.jpg" /></div>
+								<p>
+									We had a great time. The bungalow made available to us was exceptionally clean. The
+									breakfasts were hearty and varied, the dinners we had on the deck as well. Bicycles have
+									been provided graciously.
+								</p>
+								<small>- Cadaugade</small>
+								</div>
+							</li>
+							<li>
+								<div class="item dark">
+								<div class="profile"><img src="~/img/avatar-2.jpg" /></div>
+								<p>
+									It is an incredible place, in the middle of nature. very clean and well located. Host is a
+									wonderful person, he made us feel at home. I recommend taking the canoe ride at sunset.
+									We'll be back
+								</p>
+								<small>- Emiliano</small>
+								</div>
+							</li>
+						@* </ul>
+
+						<ul aria-hidden="true" class="marquee__content"> *@
+							<li>
+								<div class="item semi-dark">
+									<div class="profile"><img src="~/img/avatar-3.jpg" /></div>
+								<p>
+									We had the luck to see the dolphins from resort restaurant while having breakfast. If you
+									want a laid back chill vacation just beside the sea on... Location was extremely beautiful.
+								</p>
+								<small>- Kunal</small>
+								</div>
+							</li>
+							<li>
+								<div class="item">
+									<div class="profile"><img src="~/img/avatar-2.jpg" /></div>
+								<p>
+									The resort was perfect for a peaceful getaway with stunning views. The rooms were clean,
+									and the caretakers provided excellent service, meeting all our requests. We booked
+									through Voye Homes, and the pictures say it all!
+								</p>
+								<small>- Sumal Varittakkil</small>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="enable-animation">
+
+					<div class="marquee marquee--reverse">
+						<ul class="marquee__content">
+							<li>
+								<div class="item">
+									<div class="profile"><img src="~/img/avatar-2.jpg" /></div>
+								<p>
+									Beautifully managed property with very responsive hosts. The surroundings and the garden
+									area are so lovely. The accommodation was clean and cozy too.
+								</p>
+								<small>- Sam</small>
+								</div>
+							</li>
+							<li>
+								<div class="item semi-dark">
+									<div class="profile"><img src="~/img/avatar-2.jpg" /></div>
+								<p>
+									The stay was planned as a getaway with family which included elderly parents and 4 others
+									in their 30's. Overall it was a great experience and would recommend it to families and
+									groups of adult friends to hang out.
+								</p>
+								<small>- Shaun</small>
+								</div>
+							</li>
+						@* </ul>
+
+						<ul aria-hidden="true" class="marquee__content"> *@
+							<li>
+								<div class="item dark">
+									<div class="profile"><img src="~/img/avatar-3.jpg" /></div>
+								<p>
+									We were a group of 5 girls for a friend's bachelorette party. And it was nice because we
+									wanted complete privacy, and we got it at the property. The pool faced the lake and it was
+									beautiful to swim facing the backwaters.
+								</p>
+								<small>- Ibtisam</small>
+								</div>
+							</li>
+							<li>
+								<div class="item">
+									<div class="profile"><img src="~/img/avatar-3.jpg" /></div>
+								<p>
+									A very peaceful location, the Villa is exactly as listed. The team have been excellent and
+									been very flexible and helpful, loved the calm and quiet environment of the property.
+								</p>
+								<small>- Gavin Webber</small>
+								</div>
+							</li>
+							@* <li>
+								<div class="item semi-dark">
+									<div class="profile"><img src="~/img/avatar-3.jpg" /></div>
+									<p>Gutmann is a company specialized in mentoring anddevelopment services in web environments, integrating Microsoft technology productsandsolutions</p>
+									<small>- Albert</small>
+								</div>
+							</li> *@
+						</ul>
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+	</section>
+
+
+	@* <section class="footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-6">
+					<div class="row">
+						<div class="col-md-5">
+							<img src="~/img/voye-gold.png" alt="Voye homes">
+						</div>
+						<div class="col-md-7">
+							<h4>Wiser choice for your next gateway!</h4>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="row">
+						<div class="col-md-6">
+							<ul>
+								<li><a href="~/about/about">About us</a></li>
+								<li><a href="~/about/contact">Contact us</a></li>
+								<li><a href="#">Partner with us</a></li>
+								<li><a href="#">Gift Card</a></li>
+								<li><a href="#">Blog</a></li>
+							</ul>
+						</div>
+						<div class="col-md-6">
+							<ul>
+								<li><a href="~/about/terms">Terms & Conditions</a></li>
+								<li><a href="#">Cancellations & Refund Policy</a></li>
+								<li><a href="#">Jobs and Internships</a></li>
+								<li><a href="#">Privacy Policy</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row connects">
+				<div class="connects-head">
+					<div class="title">Booking avaible anytime</div>
+					<div class="social">
+						<ul>
+							<li>
+								<a href="#">
+									<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 24 24">
+										<path d="M19,3H5C3.895,3,3,3.895,3,5v14c0,1.105,0.895,2,2,2h7.621v-6.961h-2.343v-2.725h2.343V9.309 c0-2.324,1.421-3.591,3.495-3.591c0.699-0.002,1.397,0.034,2.092,0.105v2.43h-1.428c-1.13,0-1.35,0.534-1.35,1.322v1.735h2.7 l-0.351,2.725h-2.365V21H19c1.105,0,2-0.895,2-2V5C21,3.895,20.105,3,19,3z"></path>
+									</svg>
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 24 24">
+										<path d="M19,3H5C3.895,3,3,3.895,3,5v14c0,1.105,0.895,2,2,2h14c1.105,0,2-0.895,2-2V5C21,3.895,20.105,3,19,3z M9,17H6.477v-7H9 V17z M7.694,8.717c-0.771,0-1.286-0.514-1.286-1.2s0.514-1.2,1.371-1.2c0.771,0,1.286,0.514,1.286,1.2S8.551,8.717,7.694,8.717z M18,17h-2.442v-3.826c0-1.058-0.651-1.302-0.895-1.302s-1.058,0.163-1.058,1.302c0,0.163,0,3.826,0,3.826h-2.523v-7h2.523v0.977 C13.93,10.407,14.581,10,15.802,10C17.023,10,18,10.977,18,13.174V17z"></path>
+									</svg>
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 24 24">
+										<path d="M 8 3 C 5.239 3 3 5.239 3 8 L 3 16 C 3 18.761 5.239 21 8 21 L 16 21 C 18.761 21 21 18.761 21 16 L 21 8 C 21 5.239 18.761 3 16 3 L 8 3 z M 18 5 C 18.552 5 19 5.448 19 6 C 19 6.552 18.552 7 18 7 C 17.448 7 17 6.552 17 6 C 17 5.448 17.448 5 18 5 z M 12 7 C 14.761 7 17 9.239 17 12 C 17 14.761 14.761 17 12 17 C 9.239 17 7 14.761 7 12 C 7 9.239 9.239 7 12 7 z M 12 9 A 3 3 0 0 0 9 12 A 3 3 0 0 0 12 15 A 3 3 0 0 0 15 12 A 3 3 0 0 0 12 9 z"></path>
+									</svg>
+								</a>
+							</li>
+							<li>
+								<a href="#">
+									<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 24 24">
+										<path d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.254,4,12,4,12,4S5.746,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.746,2,12,2,12s0,4.254,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.746,20,12,20,12,20s6.254,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.254,22,12,22,12S22,7.746,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"></path>
+									</svg>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-6 p-0">
+					<div class="row m-0">
+						<div class="d-flex">
+							<a href="#" class="normal">reservations@voye.in</a>
+							<a href="#" class="normal">+971 01 234 5678</a>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6 p-0">
+					<div class="row">
+						<div class="col-md-12">
+							<p class="copyrights text-right">Copyright VOYE Homes 2024. All Rights Reserved</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</section> *@
+
+
+
+
+	<script>
+	$(document).ready(function () {
+		var owl = $('.owl-carousel');
+		owl.owlCarousel({
+			items: 1,
+			loop: true,
+			margin: 10,
+			autoplay: true,
+			autoplayTimeout: 3000,
+			autoplayHoverPause: true,
+			responsive: {
+				620: {
+					items: 2,
+					autoplay: false
+				},
+				992: {
+					items: 3,
+					autoplay: false
+				}
+			}
+		});
+	});
+	</script>
+
+@* </body>
+</html>
+ *@

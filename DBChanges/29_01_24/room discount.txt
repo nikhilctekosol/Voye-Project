@@ -1,0 +1,2 @@
+ALTER TABLE `vtravel`.`reserve_rooms` 
+ADD COLUMN `discount` FLOAT NULL DEFAULT 0 AFTER `amount`;

@@ -1,0 +1,2 @@
+ALTER TABLE `vtravel_uat`.`booking_channel` 
+ADD COLUMN `tds` FLOAT NULL AFTER `sort_order`;

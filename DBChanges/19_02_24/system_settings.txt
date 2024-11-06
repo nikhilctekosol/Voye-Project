@@ -1,0 +1,2 @@
+INSERT INTO `vtravel`.`system_settings` (`settings_name`, `settings_value`, `bit_status`) VALUES ('reservation_notification_from', 'no-reply@voye.in', '1');
+INSERT INTO `vtravel`.`system_settings` (`settings_name`, `settings_value`, `bit_status`) VALUES ('reservation_notofication_display_name', 'Voye Homes', '1');

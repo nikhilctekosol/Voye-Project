@@ -1,0 +1,1 @@
+INSERT INTO `vtravel`.`system_settings` (`id`, `settings_name`, `settings_value`, `bit_status`) VALUES ('55', 'send_mail_now', '0', '1');

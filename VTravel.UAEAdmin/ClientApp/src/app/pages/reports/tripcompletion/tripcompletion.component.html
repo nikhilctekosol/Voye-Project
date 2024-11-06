@@ -1,0 +1,80 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        <div class="row">
+          <div class="col-md-4">
+            Trip Completion
+          </div>
+        </div>
+      </nb-card-header>
+      <nb-card-body>
+        <form (ngSubmit)="loadtripcompletion()" #search="ngForm" novalidate>
+          <div class="row">
+            <div class="col-md-3">
+              <input nbInput placeholder="From Date" name="fromDate"
+                     [nbDatepicker]="from" [(ngModel)]="searchdata.fromDate"
+                     class="date-picker-box input-rectangle" [fullWidth]="true"
+                     readonly="readonly" required #fromDate="ngModel"
+                     [status]="fromDate.dirty ? (fromDate.invalid  ? 'danger' : 'success') : 'basic'">
+              <nb-datepicker #from></nb-datepicker>
+            </div>
+            <div class="col-md-3">
+              <input nbInput placeholder="To Date" name="toDate"
+                     [nbDatepicker]="to" [(ngModel)]="searchdata.toDate"
+                     class="date-picker-box input-rectangle" [fullWidth]="true"
+                     readonly="readonly" required #toDate="ngModel"
+                     [status]="toDate.dirty ? (toDate.invalid  ? 'danger' : 'success') : 'basic'">
+              <nb-datepicker #to></nb-datepicker>
+            </div>
+            <div class="col-md-1">
+
+              <button type="submit" nbButton class="btn btn-sm btn-outline-primary btn-left" [disabled]="search.invalid"
+                      nbSpinnerStatus="primary" nbSpinnerSize="xsmall" nbSpinnerMessage="">
+                <nb-icon icon="search-outline"></nb-icon>
+              </button>
+            </div>
+          </div>
+        </form>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-md-12">
+    <nb-card style="overflow:auto;">
+      <nb-card-body style="max-width:82vw; max-height:68vh;">
+        <table class="table table-striped custom-table" id="tblData">
+          <thead>
+            <tr>
+              <th scope="col">Reservation Id</th>
+              <th scope="col">Customer</th>
+              <th scope="col">Email</th>
+              <th scope="col">Phone No</th>
+              <th scope="col">Property</th>
+              <th scope="col">Final Amount</th>
+              <th scope="col">Agent</th>
+              <th scope="col">User Permission</th>
+              <th scope="col">Complete Reservation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let option of completionlist">
+              <td scope="row">{{ option.id }}</td>
+              <td scope="row">{{ option.custName}}</td>
+              <td scope="row">{{ option.custEmail }}</td>
+              <td scope="row">{{ option.custPhone }}</td>
+              <td scope="row">{{ option.property }}</td>
+              <td scope="row">{{ option.finalAmount | number:'1.2-2' }}</td>
+              <td scope="row">{{ option.agent }}</td>
+              <td scope="row"><p *ngIf="option.permission != 'User disabled'">{{ option.permission }}</p><a *ngIf="option.permission == 'User disabled'" nbButton class="btn btn-sm btn-outline-primary" (click)="enablepermission(option.id)"> Enable </a></td>
+              <td scope="row"><a nbButton class="btn btn-sm btn-outline-primary" (click)="completereservation(option.id, option.mode)"> Complete </a></td>
+            </tr>
+          </tbody>
+        </table>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

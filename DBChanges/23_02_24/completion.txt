@@ -1,0 +1,2 @@
+ALTER TABLE `vtravel`.`reservation` 
+ADD COLUMN `completion_enabled` ENUM('Y', 'N') NULL DEFAULT 'N' AFTER `tds`;
