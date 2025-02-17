@@ -31,7 +31,7 @@ public class General
                  ,'propertyList',(SELECT CAST(CONCAT('[',
                                  GROUP_CONCAT(
                                   JSON_OBJECT(
-                                    'id',p.id,'title',p.title,'perma_title',p.perma_title,'sortOrder',pt.sort_order,'destinationId',p.destination_id,'thumbnail',p.thumbnail,'city',c.city_name,'state',s.state_name,'country',cn.country_name,'roomCount',p.room_count,'bathroomCount',p.bathroom_count
+                                    'id',p.id,'title',p.title,'perma_title',p.perma_title,'sortOrder',pt.sort_order,'destinationId',p.destination_id,'thumbnail',p.thumbnail,'city',c.city_name,'state',s.state_name,'country',cn.country_name,'roomCount',p.room_count,'bathroomCount',p.bathroom_count, 'propertySize', 950
                                 ,'priceList',(SELECT CAST(CONCAT('[',
                                 GROUP_CONCAT(
                                   JSON_OBJECT(

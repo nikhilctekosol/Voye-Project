@@ -20,6 +20,10 @@ export const MENU_ITEMS: NbMenuItem[] = [
         title: 'Reservation',
         link: '/pages/operations/reservation',
       },
+      {
+        title: 'Reservation New',
+        link: '/pages/operations/reservationnew',
+      },
       
     ],
   },

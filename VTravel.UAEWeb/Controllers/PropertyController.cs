@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data;
 using System.Globalization;
@@ -6,18 +7,24 @@ using VTravel.UAEWeb.Models;
 
 namespace VTravel.UAEWeb.Controllers
 {
-    public class PropertyController : Controller
-    {
-        public IActionResult Detail(string id)
+	public class PropertyController : Controller
+	{
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public PropertyController(IWebHostEnvironment webHostEnvironment)
         {
+            _webHostEnvironment = webHostEnvironment;
+        }
+        public IActionResult Detail(string id)
+		{
 			PropertyViewModel propertyViewModel = new PropertyViewModel();
-            try
-            {
+			List<CountryList> countryList = new List<CountryList>();
+			try
+			{
 				var idArray = id.Split('-');
 				var encodedId = idArray[idArray.Length - 1];
 				var decodedId = General.DecodeString(encodedId);
 
-				propertyViewModel.property = new Property();
+                propertyViewModel.property = new Property();
 
 				//get top 10 property list grouped by tags in each group for home displayabl tags
 
@@ -30,7 +37,7 @@ namespace VTravel.UAEWeb.Controllers
                                     ,'metaTitle',p.meta_title,'metaKeywords',p.meta_keywords,'metaDescription',p.meta_description,'bookingUrl',p.booking_url,'sellOnline',p.sell_online                                        
                                     ,'propertyTypeName',pt.type_name,'city',c.city_name,'state',s.state_name,'country',cn.country_name
                                     ,'maxOccupancy',p.max_occupancy,'roomCount',p.room_count,'bathroomCount',p.bathroom_count
-                                    ,'latitude',p.latitude,'longitude',p.longitude
+                                    ,'latitude',p.latitude,'longitude',p.longitude,'propertySize',{1}
                                     ,'priceList',(SELECT CAST(CONCAT('[',
                                     GROUP_CONCAT(
                                       JSON_OBJECT(
@@ -92,8 +99,7 @@ namespace VTravel.UAEWeb.Controllers
                              INNER JOIN city c ON p.city=c.city_code 
                              INNER JOIN state s ON p.state=s.state_code 
                              INNER JOIN country cn ON p.country=cn.country_code  
-                             where p.id={0} AND  p.is_active='Y' AND p.property_status='ACTIVE'", Convert.ToInt32(decodedId)
-								);
+                             where p.id={0} AND  p.is_active='Y' AND p.property_status='ACTIVE'", Convert.ToInt32(decodedId), GetPropertySize(Convert.ToInt32(decodedId)));
 
 				DataSet ds = sqlHelper.GetDatasetByMySql(query);
 
@@ -176,14 +182,31 @@ namespace VTravel.UAEWeb.Controllers
 						propertyViewModel.promoPropertyList.Add(JsonConvert.DeserializeObject<Property>(r[0].ToString()));
 
 					}
+					var countryquery = string.Format(@"SELECT id, iso, name, nicename, iso3, phonecode, regexvalue FROM country_dump WHERE phonecode != 0 AND regexvalue IS NOT NULL;");
+					DataSet countryds = sqlHelper.GetDatasetByMySql(countryquery);
+					foreach (DataRow dr in countryds.Tables[0].Rows)
+					{
+						countryList.Add(
+								new CountryList
+								{
+									id = Convert.ToInt32(dr["id"].ToString()),
+									phonecode = "+" + dr["phonecode"].ToString(),
+									name = dr["name"].ToString(),
+									nicename = dr["nicename"].ToString(),
+									iso2 = dr["iso"].ToString(),
+									iso3 = dr["iso3"].ToString(),
+									regexvalue = dr["regexvalue"].ToString(),
+								});
+					}
+					propertyViewModel.countryList = countryList;
 				}
 				else
 				{
 					return Redirect("Home/Error");
 				}
 			}
-            catch(Exception ex)
-            {
+			catch (Exception ex)
+			{
 				General.LogException(ex);
 
 				return Redirect("Home/Error");
@@ -219,7 +242,7 @@ namespace VTravel.UAEWeb.Controllers
 
 					//check if customer exists
 					var query = string.Format(@"SELECT id,cust_name,cust_email FROM customer WHERE cust_phone='{0}' AND cust_email='{1}'"
-								 , model.custPhone, model.custEmail);
+								 , model.custPhoneCode + " " + model.custPhone, model.custEmail);
 					DataSet ds = sqlHelper.GetDatasetByMySql(query);
 					if (ds.Tables.Count > 0)
 					{
@@ -236,7 +259,7 @@ namespace VTravel.UAEWeb.Controllers
 							//create new customer 
 							query = string.Format(@"INSERT INTO customer(cust_name,cust_email,cust_phone,referral_code)
 					                             VALUES('{0}','{1}','{2}','{3}');SELECT LAST_INSERT_ID() AS id;"
-									 , model.custName, model.custEmail, model.custPhone,
+									 , model.custName, model.custEmail, model.custPhoneCode + " " + model.custPhone,
 									  model.referralCode.ToUpper());
 							ds = sqlHelper.GetDatasetByMySql(query);
 							if (ds.Tables.Count > 0)
@@ -258,7 +281,7 @@ namespace VTravel.UAEWeb.Controllers
 					                             VALUES({0},{1},'{2}','{3}',{4},{5},{6},'{7}','{8}',{9}, '{10}', '{11}');SELECT LAST_INSERT_ID() AS id;"
 										  , custId, model.propertyId,
 										  model.startDate.ToString("yyyy-MM-dd"), model.endDate.ToString("yyyy-MM-dd"),
-										  model.adultsCount, model.childrenCount, model.roomId, model.roomName, model.priceListJson, model.totalPricePerRoom, model.referralPerson, model.referralCode);
+										  model.adultsCount, model.childrenCount, model.roomId, model.roomName, model.priceListJson == null ? "{}" : model.priceListJson, model.totalPricePerRoom == null ? 0 : model.totalPricePerRoom, model.referralPerson, model.referralCode);
 						ds = sqlHelper.GetDatasetByMySql(query);
 						if (ds.Tables.Count > 0)
 						{
@@ -285,14 +308,14 @@ namespace VTravel.UAEWeb.Controllers
 										DataRow r = ds.Tables[0].Rows[0];
 
 										var priceListText = string.Empty;
-										if (r["price_list_json"].ToString() != null)
-										{
-											var priceListJson = JsonConvert.DeserializeObject<List<PriceData>>(r["price_list_json"].ToString());
-											foreach (var priceData in priceListJson)
-											{
-												priceListText += priceData.invDate.ToString("yyy MMM dd") + " : " + priceData.price + "<br/>";
-											}
-										}
+										//if (r["price_list_json"].ToString() != null)
+										//{
+										//	var priceListJson = JsonConvert.DeserializeObject<List<PriceData>>(r["price_list_json"].ToString());
+										//	foreach (var priceData in priceListJson)
+										//	{
+										//		priceListText += priceData.invDate.ToString("yyy MMM dd") + " : " + priceData.price + "<br/>";
+										//	}
+										//}
 
 										emailBody = emailBody.Replace("#ADULTS#", r["adults_count"].ToString())
 										.Replace("#CHILDREN#", r["children_count"].ToString())
@@ -306,7 +329,7 @@ namespace VTravel.UAEWeb.Controllers
 										.Replace("#REFERRAL_PERSON#", r["referral_person"].ToString())
 										.Replace("#ROOM_NAME#", r["room_name"].ToString())
 										.Replace("#TOTAL_PRICE_PER_ROOM#", r["total_price_per_room"].ToString())
-										.Replace("#PRICE_LIST_JSON#", priceListText)
+										//.Replace("#PRICE_LIST_JSON#", priceListText)
 
 										;
 
@@ -329,7 +352,7 @@ namespace VTravel.UAEWeb.Controllers
 										ds = sqlHelper.GetDatasetByMySql(query);
 										var emailBodyCustomer = ds.Tables[0].Rows[0]["content"].ToString();
 
-										var propertyUrl = "https://voyehomes.com/" + General.GetUrlSlug(r["perma_title"].ToString() + "-" + General.EncodeString(r["property_id"].ToString()));
+										var propertyUrl = "https://voyehomes.ae/" + General.GetUrlSlug(r["perma_title"].ToString() + "-" + General.EncodeString(r["property_id"].ToString()));
 
 										emailBodyCustomer = emailBodyCustomer.Replace("#ADULTS#", r["adults_count"].ToString())
 									   .Replace("#CHILDREN#", r["children_count"].ToString())
@@ -371,8 +394,10 @@ namespace VTravel.UAEWeb.Controllers
 
 
 			}
-			TempData["ErrorMessage"] = "Something went wrong!";
+			TempData["ErrorMessage"] = "We couldn't complete your reservation. Please reach out to us on WhatsApp for assistance.!";
 			return RedirectToAction("Detail", new { id = getpropertyurlid(model.propertyId) });
+
+			//return View("ThankYou");
 		}
 
 		public string getpropertyurlid(int id)
@@ -387,5 +412,27 @@ namespace VTravel.UAEWeb.Controllers
 
 			return propertyid;
 		}
-	}
+
+        public int? GetPropertySize(int id)
+        {
+            string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "data", "PropertySize.json");
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return 0;
+            }
+
+            string jsonData = System.IO.File.ReadAllText(filePath);
+            var propertydetails = JsonConvert.DeserializeObject<List<PropertySize>>(jsonData);
+
+            var size = propertydetails?.FirstOrDefault(p => p.id== id).size;
+
+            if (size == null)
+            {
+                return 0;
+            }
+
+            return size;
+        }
+    }
 }

@@ -16,7 +16,8 @@ namespace VTravel.UAEWeb.Models
         public string custEmail { get; set; }
         public string? countryCode { get; set; }
         public string custPhone { get; set; }
-        public string? daterange { get; set; }
+		public string custPhoneCode { get; set; }
+		public string? daterange { get; set; }
         public DateTime startDate { get; set; }
         public DateTime endDate { get; set; }
         public int adultsCount { get; set; }

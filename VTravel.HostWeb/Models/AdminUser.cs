@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace VTravel.HostWeb.Models
 {
-    public class BookingChannel
+    public class AdminUser
     {
         public int id { get; set; }
-        public string channelName { get; set; }
-        public string description { get; set; }
-        public decimal tds { get; set; }
-        
+        public string userName { get; set; }
+        public string userRole { get; set; }
+        public string nameOfUser { get; set; }
     }
   
+    
 }

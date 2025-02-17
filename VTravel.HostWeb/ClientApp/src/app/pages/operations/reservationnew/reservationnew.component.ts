@@ -216,12 +216,21 @@ export class ReservationnewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadProperties();
+    if (localStorage["default-reservation-property"]) {
+      this.defaultPropertyId = localStorage["default-reservation-property"];
+    }
+
+    //this.loadProperties();
     this.loadProperty();
     this.loadBookingChannels();
     this.loadDocTypes();
     this.loadCountries();
     this.loadBookingAgents();
+
+    this.reservData.id = 0;
+    this.reservData.advancepayment = 0;
+    this.reservData.partpayment = 0;
+    this.reservData.balancepayment = 0;
   }
 
   private loadProperties() {
@@ -480,7 +489,7 @@ export class ReservationnewComponent implements OnInit {
       events.push(
         {
           id: "P" + this.inventories[i].id,
-          title: "AED " + this.inventories[i].price,
+          title: "RS " + this.inventories[i].price,
           ExtraBed: this.inventories[i].extraBedPrice,
           Child: this.inventories[i].childPrice,
           OccRate: this.inventories[i].occrates,
@@ -974,19 +983,21 @@ export class ReservationnewComponent implements OnInit {
 
   paymentchange() {
     let sum = 0;
+    let advance = 0;
+    let part = 0;
+    let famt = 0;
 
     this.roomDetails.forEach(element => {
       sum += element.newbamt - element.discount;
     });
 
-
     //let commission = this.reservData.commission;
     this.reservData.finalAmount = sum;
     //this.reservData.finalAmount = sum + commission;
-    let famt = this.reservData.finalAmount;
+    famt = this.reservData.finalAmount;
     //let discount = this.reservData.discount;
-    let advance = this.reservData.advancepayment;
-    let part = this.reservData.partpayment;
+    advance = this.reservData.advancepayment ? 0 : this.reservData.advancepayment;
+    part = this.reservData.partpayment ? 0 : this.reservData.partpayment;
 
     if (famt.toString() == '' || !famt) {
       famt = 0;
@@ -1024,7 +1035,6 @@ export class ReservationnewComponent implements OnInit {
           return;
         }
         this.reservData.custPhone = this.reservData.custPhone?.toString();
-        this.reservData.details = this.reservData.details.replace(/'/g, "\\'");
         let headers = new HttpHeaders().set("Authorization", "Bearer " +
           this.token).set("Content-Type", "application/json");
 
@@ -1155,7 +1165,6 @@ export class ReservationnewComponent implements OnInit {
       this.token).set("Content-Type", "application/json");
 
     this.reservData.custPhone = this.reservData.custPhone?.toString();
-    this.reservData.details = this.reservData.details.replace(/'/g, "\\'");
     this.reservData.rooms = this.roomDetails;
     this.http.put('api/reservation/update-new?id=' + this.reservData.id
       , this.reservData, { headers: headers }).subscribe((res: any) => {
@@ -1722,13 +1731,13 @@ class ReservData {
   maxAvailableQty: number;
   noOfRooms: string;
   noOfGuests: number;
-  finalAmount: number | undefined;
-  advancepayment: number | undefined;
-  partpayment: number | undefined;
-  balancepayment: number | undefined;
+  finalAmount: number | 0;
+  advancepayment: number | 0;
+  partpayment: number | 0;
+  balancepayment: number | 0;
   //discount: number | undefined;
-  commission: number | undefined;
-  tds: number | undefined;
+  commission: number | 0;
+  tds: number | 0;
   country: string;
   created_on: string;
   updated_on: string;

@@ -18,6 +18,19 @@ namespace VTravel.UAEWeb.Models
 
         public List<Property> propertyList { get; set; }
         public List<Property> promoPropertyList { get; set; }
-    }
+		public List<CountryList> countryList { get; set; }
+	}
+
+
+	public class CountryList
+	{
+		public int id { get; set; }
+		public string phonecode { get; set; }
+		public string name { get; set; }
+		public string nicename { get; set; }
+		public string regexvalue { get; set; }
+		public string iso2 { get; set; }
+		public string iso3 { get; set; }
+	}
 
 }

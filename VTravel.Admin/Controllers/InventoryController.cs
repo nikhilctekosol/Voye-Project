@@ -118,13 +118,14 @@ namespace VTravel.Admin.Controllers
                 //                            ORDER BY i.inv_date;"
                 //                  , propertyId, roomId, DateTime.Today.ToString("yyyy-MM-dd"));
 
-                var query = string.Format(@"select i.id,i.inv_date,i.room_id,i.property_id,	IFNULL(r.noofrooms,0) total_qty,i.booked_qty,i.extra_bed_price,i.child_price, IFNULL(rb.rate, 0) price,
+                var query = string.Format(@"select i.id,i.inv_date,i.room_id,i.property_id,	IFNULL(r.noofrooms,0) total_qty,i.booked_qty,i.extra_bed_price,i.child_price, IFNULL(rb.rate, IFNULL(rb2.rate, 0)) price,
                                             GROUP_CONCAT(concat(o.occupancy, ' - ', m.mealplan, ' - ', rb1.rate)) AS occ_rates FROM inventory i
                                             left join room r on i.room_id = r.id
                                             left join room_meals rm1 on rm1.room_id = r.id
                                             left join room_meals rm on rm.room_id = r.id and rm.mealplan = (select MIN(mealplan) from room_meals where room_id = r.id)
                                             left join rateplan_breakup rb on rb.rateplan =  i.rateplan and rb.room_id = i.room_id and rb.occupancy = 2 and rb.mealplan = rm.mealplan
                                             left join rateplan_breakup rb1 on rb1.rateplan =  i.rateplan and rb1.room_id = i.room_id and rb1.mealplan = rm1.mealplan
+                                            left join rateplan_breakup rb2 on rb2.rateplan =  i.rateplan and rb2.room_id = i.room_id and rb2.occupancy = 1 and rb2.mealplan = rm.mealplan
                                             left join occupancy o on o.id = rb1.occupancy
                                             left join mealplans m on m.id = rb1.mealplan
                                             WHERE i.is_active='Y' AND i.property_id={0} AND i.room_id={1} AND i.inv_date >= '{2}'

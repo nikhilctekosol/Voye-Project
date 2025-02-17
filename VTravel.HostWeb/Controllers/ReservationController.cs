@@ -88,9 +88,176 @@ namespace VTravel.HostWeb.Controllers
             return new OkObjectResult(response);
 
 
-        }
+		}
 
-        [Authorize(Roles = "ADMIN")]
+		[HttpGet, Route("get-list-new")]//
+		public IActionResult GetListNew(int roomId, int propertyId)
+		{
+			ApiResponse response = new ApiResponse();
+			response.ActionStatus = "FAILURE";
+			response.Message = string.Empty;
+
+			try
+			{
+
+				IEnumerable<Claim> claims = User.Claims;
+				var userrole = claims.Where(c => c.Type == ClaimTypes.Role).FirstOrDefault().Value;
+
+				List<ReservData> reservations = new List<ReservData>();
+				MySqlHelper sqlHelper = new MySqlHelper();
+
+				var query = string.Format(@"select t1.id,t4.from_date,t4.to_date,t1.customer_id,t4.room_id,t1.property_id,t1.cust_name,t1.cust_email,t1.cust_phone,t1.booking_channel_id,t1.details
+                ,t1.noOfRooms,t1.no_of_guests,t1.final_amount, t1.is_host_booking,t1.created_on,t1.updated_on,t1.enquiry_ref,t1.res_status,t2.user_name,t2.name_of_user ,t3.user_name AS updated_user_name,t3.name_of_user  AS updated_name_of_user
+                , t1.advancepayment, t1.partpayment, t1.balancepayment, t1.discount, t1.commission, t1.country, t5.country_name, t1.tds
+                , (case when curdate() = date_add(MIN(t4.to_date), interval 1 day) then (case when t1.completion_enabled = 'Y' then 1 else 0 end)
+                when curdate() >= date_add(MIN(t4.to_date), interval 2 day) then 0 else 1 end) user_permission, t1.validator_id, t1.validation_date, t1.validation_status, t1.booking_agent
+                , IFNULL(IFNULL(t6.name_of_user, t6.user_name), '') validated_by
+                FROM reservation t1 LEFT JOIN admin_user t2 ON t1.created_by=t2.id
+                LEFT JOIN admin_user t3 ON t1.updated_by=t3.id 
+                LEFT JOIN reserve_rooms t4 on t4.reservation_id = t1.id
+                LEFT JOIN country t5 on t5.id = t1.country
+                LEFT JOIN admin_user t6 ON t1.validator_id=t6.id 
+                WHERE t1.is_active='Y' AND t4.room_id={0} AND t1.property_id={1} AND t4.from_date > '{2}' group by t4.id ORDER BY t1.id;"
+								  , roomId, propertyId, DateTime.Today.AddDays(-60).ToString("yyyy-MM-dd"));
+
+				DataSet ds = sqlHelper.GetDatasetByMySql(query);
+
+
+				foreach (DataRow r in ds.Tables[0].Rows)
+				{
+					TimeZoneInfo timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
+					//DateTime istNow = TimeZoneInfo.ConvertTimeFromUtc(timeUtc, timeZoneInfo);
+
+					reservations.Add(
+						new ReservData
+						{
+							id = Convert.ToInt32(r["id"].ToString()),
+							fromDate = DateTime.Parse(r["from_date"].ToString()),
+							toDate = DateTime.Parse(r["to_date"].ToString()),
+							customerId = r["customer_id"].ToString(),
+							roomId = r["room_id"].ToString(),
+							propertyId = r["property_id"].ToString(),
+							custName = r["cust_name"].ToString(),
+							custEmail = r["cust_email"].ToString(),
+							custPhone = r["cust_phone"].ToString(),
+							bookingChannelId = r["booking_channel_id"].ToString(),
+							details = r["details"].ToString(),
+							noOfRooms = r["noOfRooms"].ToString(),
+							isHostBooking = r["is_host_booking"].ToString(),
+							noOfGuests = String.IsNullOrEmpty(r["no_of_guests"].ToString()) ? 0 : int.Parse(r["no_of_guests"].ToString()),
+							finalAmount = String.IsNullOrEmpty(r["final_amount"].ToString()) ? 0 : float.Parse(r["final_amount"].ToString()),
+							advancepayment = String.IsNullOrEmpty(r["advancepayment"].ToString()) ? 0 : float.Parse(r["advancepayment"].ToString()),
+							partpayment = String.IsNullOrEmpty(r["partpayment"].ToString()) ? 0 : float.Parse(r["partpayment"].ToString()),
+							balancepayment = String.IsNullOrEmpty(r["balancepayment"].ToString()) ? 0 : float.Parse(r["balancepayment"].ToString()),
+							discount = String.IsNullOrEmpty(r["discount"].ToString()) ? 0 : float.Parse(r["discount"].ToString()),
+							commission = String.IsNullOrEmpty(r["commission"].ToString()) ? 0 : float.Parse(r["commission"].ToString()),
+							tds = String.IsNullOrEmpty(r["tds"].ToString()) ? 0 : float.Parse(r["tds"].ToString()),
+							country = r["country"].ToString(),
+							created_on = String.IsNullOrEmpty(r["created_on"].ToString()) ? ""
+							: TimeZoneInfo.ConvertTimeFromUtc(DateTime.Parse(r["created_on"].ToString()), timeZoneInfo).ToString("dd/MMM/yyyy HH:mm"),
+							updated_on = String.IsNullOrEmpty(r["updated_on"].ToString()) ? ""
+							: TimeZoneInfo.ConvertTimeFromUtc(DateTime.Parse(r["updated_on"].ToString()), timeZoneInfo).ToString("dd/MMM/yyyy HH:mm"),
+							created_by = r["is_host_booking"].ToString() == "Y" ? "Host" : r["user_name"].ToString() + "/" + r["name_of_user"].ToString(),
+							updated_by = r["is_host_booking"].ToString() == "Y" ? "NA" : (r["updated_user_name"].ToString() == "" ? r["updated_user_name"].ToString() : r["updated_user_name"].ToString() + "/") + r["updated_name_of_user"].ToString(),
+							enquiry_ref = r["enquiry_ref"].ToString(),
+							res_status = r["res_status"].ToString(),
+							user_permission = userrole.ToString() == "ADMIN" ? "1" : r["user_permission"].ToString(),
+							validator_id = r["validator_id"] == DBNull.Value ? 0 : Convert.ToInt32(r["validator_id"]),
+							validation_date = r["validation_date"].ToString(),
+							validation_status = r["validation_status"].ToString(),
+							booking_agent = r["booking_agent"] == DBNull.Value ? 0 : Convert.ToInt32(r["booking_agent"]),
+							validated_by = userrole.ToString() == "ADMIN" && r["validation_status"].ToString() == "YES" ? r["validated_by"].ToString() : "",
+							validateButtonStatus = userrole.ToString() == "ADMIN" && r["res_status"].ToString() == "COMPLETED" && r["validation_status"].ToString() != "YES" ? 1 : 0
+						}
+						);
+
+				}
+
+
+				response.Data = reservations;
+				response.ActionStatus = "SUCCESS";
+
+
+
+			}
+			catch (Exception ex)
+			{
+				response.ActionStatus = "EXCEPTION";
+				response.Message = "Something went wrong";
+			}
+			return new OkObjectResult(response);
+
+
+		}
+
+		[HttpGet, Route("get-reserve-rooms")]//
+		public IActionResult GetReserveRooms(int Id)
+		{
+			ApiResponse response = new ApiResponse();
+			response.ActionStatus = "FAILURE";
+			response.Message = string.Empty;
+
+			try
+			{
+
+				List<ReservedRoomData> reservedrooms = new List<ReservedRoomData>();
+				MySqlHelper sqlHelper = new MySqlHelper();
+
+				var query = string.Format(@"select t1.id, t1.from_date, t1.to_date, t1.room_id, t2.title, t1.years06, t1.years612, t1.years12, t1.amount, IFNULL(t1.discount, 0) discount, IFNULL(t1.new_ba, 0) new_ba, IFNULL(t1.comments, '') comments
+                                            from reserve_rooms t1
+                                            left join room t2 on t2.id = t1.room_id
+                                            where t1.reservation_id = '{0}'  ORDER BY t1.id"
+								  , Id);
+
+				DataSet ds = sqlHelper.GetDatasetByMySql(query);
+
+
+				foreach (DataRow r in ds.Tables[0].Rows)
+				{
+					TimeZoneInfo timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
+					//DateTime istNow = TimeZoneInfo.ConvertTimeFromUtc(timeUtc, timeZoneInfo);
+
+					reservedrooms.Add(
+						new ReservedRoomData
+						{
+							id = Convert.ToInt32(r["id"].ToString()),
+							fromDate = DateTime.Parse(r["from_date"].ToString()),
+							toDate = DateTime.Parse(r["to_date"].ToString()),
+							roomId = r["room_id"].ToString(),
+							room = r["title"].ToString(),
+							years06 = Convert.ToInt32(r["years06"].ToString()),
+							years612 = Convert.ToInt32(r["years612"].ToString()),
+							years12 = Convert.ToInt32(r["years12"].ToString()),
+							noOfGuests = Convert.ToInt32(r["years06"].ToString()) + Convert.ToInt32(r["years612"].ToString()) + Convert.ToInt32(r["years12"].ToString()),
+							amount = Convert.ToDecimal(r["amount"].ToString()),
+							discount = Convert.ToDecimal(r["discount"].ToString()),
+							newbamt = Convert.ToDecimal(r["new_ba"].ToString()),
+							comments = r["comments"].ToString()
+						}
+						);
+
+				}
+
+
+				response.Data = reservedrooms;
+				response.ActionStatus = "SUCCESS";
+
+
+
+			}
+			catch (Exception ex)
+			{
+				response.ActionStatus = "EXCEPTION";
+				response.Message = "Something went wrong";
+			}
+			return new OkObjectResult(response);
+
+
+		}
+
+		[Authorize(Roles = "ADMIN")]
         [HttpPost, Route("create")]
         public IActionResult Create([FromBody] ReservData model)
         {

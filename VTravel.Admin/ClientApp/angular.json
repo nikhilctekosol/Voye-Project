@@ -14,7 +14,7 @@
             "aot": true,
             "preserveSymlinks": true,
             "rebaseRootRelativeCssUrls": true,
-            "outputPath": "C:\\Work\\VTravel\\VTravel.Admin\\bin\\Release\\net5.0\\publish\\ClientApp\\dist",
+            "outputPath": "C:\\Work\\Voye-Project\\VTravel.Admin\\bin\\Release\\net5.0\\publish\\ClientApp\\dist",
             "index": "src/index.html",
             "main": "src/main.ts",
             "tsConfig": "src/tsconfig.app.json",

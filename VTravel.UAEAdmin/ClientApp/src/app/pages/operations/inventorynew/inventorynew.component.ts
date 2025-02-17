@@ -142,7 +142,9 @@ export class InventorynewComponent implements OnInit {
   handleDateSelect(selectInfo: DateSelectArg) {
 
     var check = this.formatDate(selectInfo.startStr);
-    var today = this.formatDate(new Date());
+
+    let currentDate = new Date();
+    var today = this.formatDate(new Date(currentDate.getTime() - 240 * 24 * 60 * 60 * 1000));
 
 
     if (check >= today) {
@@ -266,6 +268,14 @@ export class InventorynewComponent implements OnInit {
       , { headers: headers }).subscribe((res: any) => {
 
         if (res.actionStatus == 'SUCCESS') {
+
+          const dayElements = document.querySelectorAll(`.fc-day`);
+          dayElements.forEach((dayElement) => {
+            this.renderer.removeStyle(dayElement, 'background-color');
+            this.renderer.removeStyle(dayElement, 'color');
+            this.renderer.removeAttribute(dayElement, 'title'); // Optional: Remove the title attribute
+          });
+
 
           this.property = res.data;
           this.rooms = [];

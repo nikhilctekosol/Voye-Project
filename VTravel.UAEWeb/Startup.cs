@@ -63,7 +63,7 @@ namespace VTravel.UAEWeb
             {
                 endpoints.MapControllerRoute(name: "property",
                 pattern: "{id}",
-                defaults: new { controller = "Property", action = "Details" });
+                defaults: new { controller = "Property", action = "Detail" });
 
                 endpoints.MapControllerRoute(name: "page_PartnerWithUs",
                 pattern: "page/partner-with-us",

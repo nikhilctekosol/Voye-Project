@@ -48,37 +48,39 @@
 						{
 							if (p.propertyList.Length > 0)
 							{
-						@foreach (var property in p.propertyList)
-						{
-							<a href="~/property/detail/@General.GetUrlSlug(property.perma_title)-@General.EncodeString(property.id.ToString())">
-								<div class="card">
-									<div class="img" style="background-image:url('@property.thumbnail.Replace("/image/upload/", "/image/upload/w_900,c_scale/")');">
-										@* <img src="@property.thumbnail.Replace("/image/upload/", "/image/upload/w_300,c_scale/")" alt="Voye Apartment for rent" class="img-fluid" /> *@
-									</div>
-									<div class="project-details">
-										@if (property.priceList != null)
-										{
-											if (property.priceList.Length > 0)
-											{
-												@* <div class="price">from ₹@property.priceList[0].price</div> *@
-												<div class="project-price">AED @property.priceList[0].price.ToString("F2")</div>
-											}
-										}
+								@foreach (var property in p.propertyList)
+								{
+									<a href="~/@General.GetUrlSlug(property.perma_title)-@General.EncodeString(property.id.ToString())">
+										<div class="card">
+											<div class="img" style="background-image:url('@property.thumbnail.Replace("/image/upload/", "/image/upload/w_900,c_scale/")');">
+												@* <img src="@property.thumbnail.Replace("/image/upload/", "/image/upload/w_300,c_scale/")" alt="Voye Apartment for rent" class="img-fluid" /> *@
+											</div>
+											<div class="project-details">
+												@if (property.priceList != null)
+												{
+													if (property.priceList.Length > 0)
+													{
+														@* <div class="price">from ₹@property.priceList[0].price</div> *@
+														<div class="project-price">AED @property.priceList[0].price.ToString("F2")</div>
+													}
+												}
 
-										<h3 class="project-name">@* VOYE HOMES Al Qanat القناة  Dubai *@ @property.title</h3>
-										<div class="view">
-											<span class="sqft">950 Sqft</span>
-											<span class="bhk">@property.roomCount BHK</span>
-											<span class="bath">@property.bathroomCount Bath</span>
+												<h3 class="project-name">@* VOYE HOMES Al Qanat القناة  Dubai *@ @property.title</h3>
+												<div class="view">
+													<span class="sqft">@property.propertySize Sqft</span>
+													<span class="bhk">@property.roomCount BHK</span>
+													<span class="bath">@property.bathroomCount Bath</span>
+												</div>
+											</div>
 										</div>
-									</div>
-								</div>
-							</a>
-						}
-					}
+									</a>
+								}
+							}
 						}
 					}
 			</div>
+			<button class="owl-prev">❮</button>
+			<button class="owl-next">❯</button>
 		</div>
 	</section>
 
@@ -111,7 +113,10 @@
 					<div class="weather-widget">
 						<div class="temperature">
 						@* <small>2.12 pm, Aug 28,2024</small> *@
-						<small>@ViewData["last_up"]</small>
+						<div class="ico">
+							<img src="~/img/time-period-icon.svg" width="15" height="15" />  <small>@ViewData["last_up"]</small>
+						</div>
+						
 							<div class="value">
 							@ViewData["Temp"]<sup>°C</sup>
 								<div id="sun" class="icon">
@@ -373,29 +378,34 @@
 
 
 
-	<script>
+	@* <script>
 	$(document).ready(function () {
 		var owl = $('.owl-carousel');
 		owl.owlCarousel({
+			stagePadding: 25,
 			items: 1,
 			loop: true,
 			margin: 10,
 			autoplay: true,
 			autoplayTimeout: 3000,
 			autoplayHoverPause: true,
+			dots:true,
+			// nav: true,
 			responsive: {
 				620: {
 					items: 2,
+					stagePadding: 50,
 					autoplay: false
 				},
 				992: {
+					stagePadding: 75,
 					items: 3,
 					autoplay: false
 				}
 			}
 		});
 	});
-	</script>
+	</script> *@
 
 @* </body>
 </html>

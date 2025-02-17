@@ -102,8 +102,8 @@ namespace VTravel.UAEAdmin
 						if(Convert.ToInt32(rows) == 0)
 						{
 							command.CommandText = string.Format(@"INSERT INTO weather_data (temperature, humidity, details, last_updated, sunrise, sunset, weather_icon) VALUES ({0}, {1}, '{2}', '{3}', '{4}', '{5}', '{6}')",
-										 Convert.ToDouble(weather.Main.Temp) - 273.15, weather.Main.Humidity, weather.Weather[0].Description, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-										 , DateTimeOffset.FromUnixTimeSeconds(weather.WeatherSys.Sunrise).DateTime.AddHours(4).ToString("yyyy-MM-dd HH:mm:ss"), DateTimeOffset.FromUnixTimeSeconds(weather.WeatherSys.Sunset).DateTime.AddHours(4).ToString("yyyy-MM-dd HH:mm:ss")
+										 Convert.ToDouble(weather.Main.Temp) - 273.15, weather.Main.Humidity, weather.Weather[0].Description, DateTimeOffset.FromUnixTimeSeconds(weather.dt).DateTime.AddSeconds(weather.timezone).ToString("yyyy-MM-dd HH:mm:ss")
+										 , DateTimeOffset.FromUnixTimeSeconds(weather.WeatherSys.Sunrise).DateTime.AddSeconds(weather.timezone).ToString("yyyy-MM-dd HH:mm:ss"), DateTimeOffset.FromUnixTimeSeconds(weather.WeatherSys.Sunset).DateTime.AddSeconds(weather.timezone).ToString("yyyy-MM-dd HH:mm:ss")
 										 , weather.Weather[0].Icon);
 
 							var results = await command.ExecuteScalarAsync();
@@ -111,8 +111,8 @@ namespace VTravel.UAEAdmin
 						else
 						{
 							command.CommandText = string.Format(@"UPDATE weather_data SET temperature={0}, humidity = {1}, details = '{2}', last_updated = '{3}', sunrise = '{4}', sunset = '{5}', weather_icon = '{6}'",
-										 Convert.ToDouble(weather.Main.Temp) - 273.15, weather.Main.Humidity, weather.Weather[0].Description, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-										 , DateTimeOffset.FromUnixTimeSeconds(weather.WeatherSys.Sunrise).DateTime.AddHours(4).ToString("yyyy-MM-dd HH:mm:ss"), DateTimeOffset.FromUnixTimeSeconds(weather.WeatherSys.Sunset).DateTime.AddHours(4).ToString("yyyy-MM-dd HH:mm:ss")
+										 Convert.ToDouble(weather.Main.Temp) - 273.15, weather.Main.Humidity, weather.Weather[0].Description, DateTimeOffset.FromUnixTimeSeconds(weather.dt).DateTime.AddSeconds(weather.timezone).ToString("yyyy-MM-dd HH:mm:ss")
+										 , DateTimeOffset.FromUnixTimeSeconds(weather.WeatherSys.Sunrise).DateTime.AddSeconds(weather.timezone).ToString("yyyy-MM-dd HH:mm:ss"), DateTimeOffset.FromUnixTimeSeconds(weather.WeatherSys.Sunset).DateTime.AddSeconds(weather.timezone).ToString("yyyy-MM-dd HH:mm:ss")
 										 , weather.Weather[0].Icon);
 
 							var results = await command.ExecuteScalarAsync();
@@ -160,5 +160,9 @@ namespace VTravel.UAEAdmin
 		public List<WeatherDesc> Weather { get; set; }
 		[JsonProperty("sys")]
 		public WeatherSys WeatherSys { get; set; }
+		[JsonProperty("dt")]
+		public long dt { get; set; }
+		[JsonProperty("timezone")]
+		public int timezone { get; set; }
 	}
 }

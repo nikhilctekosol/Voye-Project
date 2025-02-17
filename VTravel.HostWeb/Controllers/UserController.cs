@@ -2,70 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.AspNetCore.Mvc;
-using VTravel.HostWeb.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
+using VTravel.HostWeb;
 using VTravel.HostWeb.Models;
 
 
-namespace VTravel.HostWeb.Controllers
+namespace VTravel.Admin.Controllers
 {
     
-    [Route("api/roomtype"), Authorize]
-    public class RoomTypeController : Controller
+    [Route("api/user"), Authorize(Roles = "ADMIN")]
+    public class UserController : Controller
     {
         private readonly IHostingEnvironment _hostingEnvironment;
-        public RoomTypeController(IHostingEnvironment hostingEnvironment)
+        public UserController(IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
             string projectRootPath = _hostingEnvironment.ContentRootPath;
         }
         
-            
-       
-
-        [HttpPost, Route("sort")]
-        public IActionResult Sort([FromBody] SortData model)
-        {
-            ApiResponse response = new ApiResponse();
-            response.ActionStatus = "FAILURE";
-            response.Message = string.Empty;
-
-            try
-            {
-
-                if (model != null)
-                {
-                 
-                    MySqlHelper sqlHelper = new MySqlHelper();
-
-                    var query = string.Format(@"UPDATE room SET sort_order=sort_order+{0} WHERE sort_order>={1};  
-                  UPDATE room SET sort_order={1} WHERE id={2}", model.pushDownValue,
-                                     model.sortOrder,model.itemId);
-
-                    DataSet ds = sqlHelper.GetDatasetByMySql(query);
-
-
-                    
-                    response.ActionStatus = "SUCCESS";
-                    response.Message ="products sorted";
-                }
-                else
-                {
-                    return BadRequest("Invalid sort product");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                response.ActionStatus = "EXCEPTION";
-                response.Message = "Something went wrong";
-            }
-            return new OkObjectResult(response);
-
-
-        }
-
+         
 
         [HttpGet, Route("get-list")]
         public IActionResult GetList()
@@ -77,11 +33,11 @@ namespace VTravel.HostWeb.Controllers
             try
             {
 
-                List<RoomType> roomTypes = new List<RoomType>();
+                List<AdminUser> users = new List<AdminUser>();
                 MySqlHelper sqlHelper = new MySqlHelper();
 
-                var query = string.Format(@"select id,type_name,sort_order 
-                 FROM room_type WHERE is_active='Y' ORDER BY sort_order"
+                var query = string.Format(@"select id,user_name,user_role,name_of_user 
+                              FROM admin_user WHERE is_active='Y' ORDER BY name_of_user"
                                    );
 
                 DataSet ds = sqlHelper.GetDatasetByMySql(query);
@@ -90,21 +46,23 @@ namespace VTravel.HostWeb.Controllers
                 foreach (DataRow r in ds.Tables[0].Rows)
                 {
 
-                    roomTypes.Add(
-                        new RoomType
+                    users.Add(
+                        new AdminUser
                         {
-                            id=Convert.ToInt32(r["id"].ToString()),
-                            typeName = r["type_name"].ToString()
+                            id = Convert.ToInt32(r["id"].ToString()),
+                            nameOfUser = r["name_of_user"].ToString(),
+                            userName = r["user_name"].ToString(),
+                            userRole = r["user_role"].ToString()
                         }
                         );
 
                 }
 
 
-                response.Data = roomTypes;
+                response.Data = users;
                 response.ActionStatus = "SUCCESS";
-                   
-                
+
+
 
             }
             catch (Exception ex)
@@ -118,7 +76,7 @@ namespace VTravel.HostWeb.Controllers
         }
 
         [HttpPost, Route("create")]
-        public IActionResult Create([FromBody] RoomType model)
+        public IActionResult Create([FromBody] AdminUser model)
         {
             ApiResponse response = new ApiResponse();
             response.ActionStatus = "FAILURE";
@@ -132,9 +90,9 @@ namespace VTravel.HostWeb.Controllers
 
                     MySqlHelper sqlHelper = new MySqlHelper();
 
-                    var query = string.Format(@"INSERT INTO room_type(type_name,description) VALUES('{0}','{1}');
+                    var query = string.Format(@"INSERT INTO admin_user(user_name,name_of_user,user_role) VALUES('{0}','{1}','{2}');
                                          SELECT LAST_INSERT_ID() AS id;",
-                                     model.typeName, model.description);
+                                     model.userName, model.nameOfUser,model.userRole);
 
                     DataSet ds = sqlHelper.GetDatasetByMySql(query);
                     if (ds != null)
@@ -169,7 +127,7 @@ namespace VTravel.HostWeb.Controllers
         }
 
         [HttpPut, Route("update")]
-        public IActionResult Update([FromBody] RoomType model, int id)
+        public IActionResult Update([FromBody] AdminUser model, int id)
         {
             ApiResponse response = new ApiResponse();
             response.ActionStatus = "FAILURE";
@@ -183,8 +141,8 @@ namespace VTravel.HostWeb.Controllers
 
                     MySqlHelper sqlHelper = new MySqlHelper();
 
-                    var query = string.Format(@"UPDATE room_type SET type_name='{0}',description='{1}' WHERE id={2}",
-                                     model.typeName, model.description, id);
+                    var query = string.Format(@"UPDATE admin_user SET user_name='{0}',name_of_user='{1}',user_role='{2}' WHERE id={3}",
+                                     model.userName, model.nameOfUser, model.userRole,  id);
 
                     DataSet ds = sqlHelper.GetDatasetByMySql(query);
                     response.ActionStatus = "SUCCESS";
@@ -221,7 +179,7 @@ namespace VTravel.HostWeb.Controllers
 
                     MySqlHelper sqlHelper = new MySqlHelper();
 
-                    var query = string.Format(@"UPDATE room_type SET is_active='N' WHERE id={0}",
+                    var query = string.Format(@"UPDATE admin_user SET is_active='N' WHERE id={0}",
                            id);
 
                     DataSet ds = sqlHelper.GetDatasetByMySql(query);

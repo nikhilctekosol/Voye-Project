@@ -7,17 +7,35 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/VTravel.UAEWeb.styles.css" asp-append-version="true" /> *@
+	<!-- Google Tag Manager -->
+	<script>
+		(function (w, d, s, l, i) {
+			w[l] = w[l] || []; w[l].push({
+				'gtm.start':
+					new Date().getTime(), event: 'gtm.js'
+			}); var f = d.getElementsByTagName(s)[0],
+				j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+					'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+		})(window, document, 'script', 'dataLayer', 'GTM-MDJQQ6NX');</script>
+	<!-- End Google Tag Manager -->
 
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Best luxurious apartments in Dubai | VOYE HOMES</title>
-    <meta name="description" content="Blueprint: Slide and Push Menus" />
-    <meta name="keywords" content="sliding menu, pushing menu, navigation, responsive, menu, css, jquery" />
+	<title>@ViewData["Title"]</title>
+    @* <title>Best luxurious apartments in Dubai | VOYE HOMES</title> *@
+	<meta name="description" content="@ViewData["Description"]" />
+	<meta name="keywords" content="@ViewData["Keywords"]" />
     <meta name="author" content="Codrops" />
     @* <link rel="shortcut icon" href="../favicon.ico"> *@
+	<meta property="og:title" content="@ViewData["Title"]" />
+	<meta property="og:description" content="@ViewData["Description"]" />
+	<meta property="og:image" content="@ViewData["Thumbnail"]" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="@Url.PageLink()" />
 
+	<link rel="canonical" href="https://voyehomes.ae/@ViewData["CanonicalUrl"]" />
 	<link rel="shortcut icon" type="image/jpeg" href="~/img/favicon.jpeg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,6 +71,11 @@
 
 </head>
 <body class="cbp-spmenu-push">
+	<!-- Google Tag Manager (noscript) -->
+		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MDJQQ6NX"
+		height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	<!-- End Google Tag Manager (noscript) -->
+
     @* <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -208,7 +231,7 @@
 							<ul>
 								<li><a href="~/about/terms">Terms & Conditions</a></li>
 								<li><a href="~/about/cancellation">Cancellations & Refund Policy</a></li>
-								<li><a href="~/about/jobs">Jobs and Internships</a></li>
+								@* <li><a href="~/about/jobs">Jobs and Internships</a></li> *@
 								<li><a href="~/about/privacy">Privacy Policy</a></li>
 							</ul>
 						</div>
@@ -273,8 +296,8 @@
 							</div>
 						</li>
 						<div class="d-flex">
-							<a href="#" class="normal">uae@voyehomes.com</a>
-							<a href="#" class="normal">+971 4 554 8749</a>
+							<a href="mailto:uae@voyehomes.com" class="normal">uae@voyehomes.com</a>
+							<a href="tel:@General.GetSettingsValue("business_phone")" class="normal">@General.GetSettingsValue("business_phone")</a>
 						</div>
 					</div>
 				</div>

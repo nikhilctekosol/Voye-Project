@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -18,14 +19,16 @@ namespace VTravel.UAEWeb.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         IConfiguration _configuration;
+		private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
+		public HomeController(ILogger<HomeController> logger, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             try
             {
                 _logger = logger;
                 _configuration = configuration;
-            }
+				_webHostEnvironment = webHostEnvironment;
+			}
             catch (Exception ex)
             {
 
@@ -124,6 +127,19 @@ namespace VTravel.UAEWeb.Controllers
                     {
                         tagr.propertyList = tagr.propertyList.OrderBy(p => p.sortOrder).ToArray<Property>();
                     }
+
+                    if(tagr.id == 1)
+                    {
+						if (tagr.propertyList != null)
+						{
+
+							foreach (var dr in tagr.propertyList)
+							{
+								dr.propertySize = GetPropertySize(Convert.ToInt32(dr.id));
+							}
+						}
+
+					}
 
                 }
 
@@ -293,6 +309,29 @@ namespace VTravel.UAEWeb.Controllers
 				"50n" => "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"30\" height=\"30\" viewBox=\"0 0 64 64\"><path d=\"M50 42H20c-6.6 0-12-5.4-12-12s5.4-12 12-12c1 0 2 .1 3 .3C25.2 15 28 12 31.5 12c5.5 0 10 4.5 10 10h1c6.6 0 12 5.4 12 12s-5.4 12-12 12z\" fill=\"#B3CDE0\"></path><path d=\"M28 44h-4v8h4zM36 44h-4v8h4zM44 44h-4v8h4z\" fill=\"#B3CDE0\" opacity=\"0.5\"></path></svg>",
 				_ => throw new ArgumentOutOfRangeException(nameof(condition), condition, null)
 			};
+		}
+
+
+		public int? GetPropertySize(int id)
+		{
+			string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "data", "PropertySize.json");
+
+			if (!System.IO.File.Exists(filePath))
+			{
+				return 0;
+			}
+
+			string jsonData = System.IO.File.ReadAllText(filePath);
+			var propertydetails = JsonConvert.DeserializeObject<List<PropertySize>>(jsonData);
+
+			var size = propertydetails?.FirstOrDefault(p => p.id == id).size;
+
+			if (size == null)
+			{
+				return 0;
+			}
+
+			return size;
 		}
 	}
 }

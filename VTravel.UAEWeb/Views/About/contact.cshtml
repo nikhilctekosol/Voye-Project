@@ -117,7 +117,7 @@
 		</div>
 		<a href="~/property/detail#booking" class="cta">Book Now</a>
 	</div> *@
-
+	@model ContactDetails
 
 	<section class="inner-wrapper-nospace">
 
@@ -125,19 +125,38 @@
 			<div class="half-layout">
 				<div class="left">
 					<div class="form-wrap booking">
-					<form novalidate="" asp-controller="About" asp-action="Contact" method="post">
+					<form asp-controller="About" asp-action="Contact" method="post">
 						<h4 class="subtitles pb-2">Get in touch</h4>
 						<div class="fields name">
 							<label for="full_name"><span>Guest name</span></label>
-							<input type="text" name="full_name" placeholder="Mr. Nicolas" class="form-field" />
+							<input type="text" name="full_name" placeholder="Mr. Nicolas" class="form-field" title="Please enter a name." required />
 						</div>
 						<div class="fields name">
 						<label for="email"><span>E-mail</span></label>
-						<input type="text" name="email" placeholder="name@email.com" class="form-field" />
+							<input type="text" name="email" placeholder="name@email.com" class="form-field" pattern=$"^\+?[a-zA-Z0-9 ]+@@[a-zA-Z0-9 ]+\.[a-zA-Z]{2,}$" title="Please enter a valid email address." required />
 						</div>
-						<div class="fields name">
-						<label for="mobile"><span>Phone</span></label>
-						<input type="text" name="mobile" placeholder="+971 000 000000" class="form-field" />
+
+						<div class="fields name form-group boxed" style="border:none;">
+							<label for="custPhone" class="row w-10 floating-label form-label"><span>Contact Number *</span></label>
+							<div class="input-group">
+								<select class="form-control custom-select country-code form-field" id="custPhoneCode" name="custPhoneCode" required="" style="width:40%; float:left; border:1px solid black; border-right:none;">
+									@* <option value="+971" data-regex="^+971d{9}$">+971(UNITED ARAB EMIRATES)</option> *@
+									@foreach (var country in @Model.countryList)
+									{
+										if (@country.phonecode == "+971")
+										{
+											<option value="@country.phonecode" data-regex="@country.regexvalue" selected="selected">@country.phonecode<lt>(</lt>@country.iso3<lt>)</lt></option>
+										}
+										else
+										{
+											<option value="@country.phonecode" data-regex="@country.regexvalue">@country.phonecode<lt>(</lt>@country.iso3<lt>)</lt></option>
+										}
+
+									}
+
+								</select>
+								<input type="text" id="custPhone" name="custPhone" placeholder="000 000000" class="form-field" title="Please enter a valid phone number." required style="width:60%; border-left:none;" />
+							</div>
 						</div>
 						<div class="fields name">
 						<label for="details"><span>Message</span></label>
@@ -267,3 +286,45 @@
 	</section>
 </body>
 </html> *@
+<script>
+	$(document).ready(function () {
+		document.getElementById('custPhoneCode').addEventListener('change', function () {
+			document.getElementById('custPhone').value = '';
+		});
+
+		document.getElementById('custPhone').addEventListener('change', function () {
+			const phoneInput = this; // Reference to the phone input field
+			const countryDropdown = document.getElementById('custPhoneCode');
+
+			// Get the regex from the selected country
+			const selectedOption = countryDropdown.options[countryDropdown.selectedIndex];
+			let regexPattern = selectedOption.getAttribute('data-regex');
+			regexPattern = escapeRegexPattern(regexPattern);
+
+			// Check if regex exists
+			if (regexPattern) {
+				const regex = new RegExp(regexPattern); // Create regex from pattern
+
+
+				// Validate input against the regex
+				if (!regex.test(selectedOption.value + phoneInput.value)) {
+					phoneInput.style.borderColor = 'red'; // Highlight invalid input
+	@* phoneInput.setCustomValidity('Invalid phone number format.'); // Set validation message *@
+						phoneInput.value = '';
+				} else {
+					phoneInput.style.borderColor = 'green'; // Indicate valid input
+	@* phoneInput.setCustomValidity(''); // Clear validation message *@
+					}
+			} else {
+				// No regex pattern for the selected country
+				phoneInput.style.borderColor = ''; // Reset border
+	@* phoneInput.setCustomValidity(''); // Clear validation message *@
+				}
+		});
+	});
+	function escapeRegexPattern(pattern) {
+		return pattern
+			.replace(/\+/g, '\\+') // Escape all `+` characters
+			.replace(/d/g, '\\d'); // Replace all `d` with `\d`
+	}
+</script>

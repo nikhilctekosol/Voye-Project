@@ -334,6 +334,7 @@ export class ReservationnewComponent implements OnInit {
   }
 
   showBookings(evt) {
+    this.roomDetails = [];
     var target = evt.target;
     if (target.checked) {
       this.displayMode = 'BOOKINGS';
@@ -344,6 +345,8 @@ export class ReservationnewComponent implements OnInit {
   }
 
   showInventory(evt) {
+    this.roomDetails = [];
+    this.reservData.id = 0;
     var target = evt.target;
     if (target.checked) {
       this.displayMode = 'INVENTORY';
@@ -555,6 +558,7 @@ export class ReservationnewComponent implements OnInit {
     if (this.displayMode == 'BOOKINGS') {
       this.mode = 'UPDATE';
       this.reservData = new ReservData();
+      this.roomDetails = [] as RoomData[];
       this.reservData = this.reservations.find(_obj => _obj.id == clickInfo.event.id);
       if (this.reservData.booking_agent == "0") {
         this.reservData.booking_agent = this.user.id;
@@ -939,9 +943,9 @@ export class ReservationnewComponent implements OnInit {
   }
 
   checkout() {
+    this.reservData = new ReservData();
     this.createFormData = new FormData();
     this.foundFile = false;
-
     this.reservData.booking_agent = this.user.id;
     this.reservData.propertyId = this.property.id.toString();
     //this.reservData.commission = 0;
@@ -1020,6 +1024,7 @@ export class ReservationnewComponent implements OnInit {
           return;
         }
         this.reservData.custPhone = this.reservData.custPhone?.toString();
+        this.reservData.details = this.reservData.details.replace(/'/g, "\\'");
         let headers = new HttpHeaders().set("Authorization", "Bearer " +
           this.token).set("Content-Type", "application/json");
 
@@ -1035,7 +1040,6 @@ export class ReservationnewComponent implements OnInit {
 
                 let docheaders = new HttpHeaders().set("Authorization", "Bearer " +
                   this.token);
-
                 this.http.put('api/reservation/create-add-doc?resid=' + res_id + '&doctype=' + this.defaultCreateDocTypeId,
                   this.createFormData, { headers: docheaders }).subscribe((docRes: any) => {
                     this.loadingDocSave = false;
@@ -1151,6 +1155,7 @@ export class ReservationnewComponent implements OnInit {
       this.token).set("Content-Type", "application/json");
 
     this.reservData.custPhone = this.reservData.custPhone?.toString();
+    this.reservData.details = this.reservData.details.replace(/'/g, "\\'");
     this.reservData.rooms = this.roomDetails;
     this.http.put('api/reservation/update-new?id=' + this.reservData.id
       , this.reservData, { headers: headers }).subscribe((res: any) => {
@@ -1372,7 +1377,7 @@ export class ReservationnewComponent implements OnInit {
         filename = filename + this.reservData.enquiry_ref.toUpperCase();
       }
     }
-
+    console.log(filename);
     this.loadingDocSave = true;
 
     const formData = new FormData();
@@ -1501,6 +1506,7 @@ export class ReservationnewComponent implements OnInit {
     }
 
     let allPresent = true;
+
     for (const docType of this.createdoctypes) {
       const found = this.createresdocs.some(resDoc => resDoc.createresdoc_id == docType.id);
 
@@ -1510,7 +1516,7 @@ export class ReservationnewComponent implements OnInit {
     }
 
     //if (allPresent) {
-      this.foundFile = allPresent;
+    this.foundFile = allPresent;
     //}
 
     this.defaultCreateDocTypeId = '0';
@@ -1547,7 +1553,6 @@ export class ReservationnewComponent implements OnInit {
     let allPresent = true;
     for (const docType of this.createdoctypes) {
       const found = this.createresdocs.some(resDoc => resDoc.createresdoc_id == docType.id);
-
       if (!found) {
         allPresent = false;
       }

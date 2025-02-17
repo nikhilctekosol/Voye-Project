@@ -267,6 +267,13 @@ export class InventorynewComponent implements OnInit {
 
         if (res.actionStatus == 'SUCCESS') {
 
+          const dayElements = document.querySelectorAll(`.fc-day`);
+          dayElements.forEach((dayElement) => {
+            this.renderer.removeStyle(dayElement, 'background-color');
+            this.renderer.removeStyle(dayElement, 'color');
+            this.renderer.removeAttribute(dayElement, 'title'); // Optional: Remove the title attribute
+          });
+
           this.property = res.data;
           this.rooms = [];
           this.room = new Room();

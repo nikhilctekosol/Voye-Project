@@ -51,6 +51,16 @@ namespace VTravel.CustomerWeb
                 app.UseHsts();
             }
 
+            app.Use(async (context, next) =>
+            {
+                if (env.IsDevelopment())
+                {
+                    // Add "noindex, nofollow" meta tag in HTTP response header
+                    context.Response.Headers.Add("X-Robots-Tag", "noindex, nofollow");
+                }
+                await next();
+            });
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

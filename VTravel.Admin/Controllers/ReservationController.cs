@@ -270,9 +270,9 @@ namespace VTravel.Admin.Controllers
                             years612 = Convert.ToInt32(r["years612"].ToString()),
                             years12 = Convert.ToInt32(r["years12"].ToString()),
                             noOfGuests = Convert.ToInt32(r["years06"].ToString()) + Convert.ToInt32(r["years612"].ToString()) + Convert.ToInt32(r["years12"].ToString()),
-                            amount = Convert.ToInt32(r["amount"].ToString()),
-                            discount = Convert.ToInt32(r["discount"].ToString()),
-                            newbamt = Convert.ToInt32(r["new_ba"].ToString()),
+                            amount = Convert.ToDecimal(r["amount"].ToString()),
+                            discount = Convert.ToDecimal(r["discount"].ToString()),
+                            newbamt = Convert.ToDecimal(r["new_ba"].ToString()),
                             comments = r["comments"].ToString()
                         }
                         );
@@ -586,78 +586,85 @@ namespace VTravel.Admin.Controllers
                 if (model != null)
                 {
 
-                    MySqlHelper sqlHelper = new MySqlHelper();//
-                    IEnumerable<Claim> claims = User.Claims;
-                    var userId = claims.Where(c => c.Type == "id").FirstOrDefault().Value;
+                    if (model.rooms.Count > 0)
+                    {
 
-                    var roomquery = string.Format(@"select t1.id, t1.from_date, t1.to_date, t1.room_id, t2.title, t1.years06, t1.years612, t1.years12, t1.amount, IFNULL(t1.discount, 0) discount, IFNULL(t1.new_ba, 0) new_ba, IFNULL(t1.comments, '') comments, r.property_id
+                        MySqlHelper sqlHelper = new MySqlHelper();//
+                        IEnumerable<Claim> claims = User.Claims;
+                        var userId = claims.Where(c => c.Type == "id").FirstOrDefault().Value;
+
+                        var roomquery = string.Format(@"select t1.id, t1.from_date, t1.to_date, t1.room_id, t2.title, t1.years06, t1.years612, t1.years12, t1.amount, IFNULL(t1.discount, 0) discount, IFNULL(t1.new_ba, 0) new_ba, IFNULL(t1.comments, '') comments, r.property_id
                                             from reserve_rooms t1
                                             left join room t2 on t2.id = t1.room_id
                                             inner join reservation r on t1.reservation_id = r.id
                                             where t1.reservation_id = '{0}'  ORDER BY t1.id"
-                                  , id);
+                                      , id);
 
-                    DataSet roomds = sqlHelper.GetDatasetByMySql(roomquery);
+                        DataSet roomds = sqlHelper.GetDatasetByMySql(roomquery);
 
 
-                    var query = string.Format(@"UPDATE reservation SET cust_name='{0}',cust_email='{1}',cust_phone='{2}',booking_channel_id={3},details='{4}'
+                        var query = string.Format(@"UPDATE reservation SET cust_name='{0}',cust_email='{1}',cust_phone='{2}',booking_channel_id={3},details='{4}'
                                         ,updated_by={5}, updated_on='{6}',no_of_guests={7},final_amount={8},enquiry_ref='{9}',advancepayment='{11}'
                                         ,partpayment='{12}',balancepayment='{13}',discount={14},commission={15}, country = '{16}', tds = '{17}', booking_agent = {18} WHERE id={10}",
-                                        model.custName, model.custEmail, model.custPhone, model.bookingChannelId, model.details, userId
-                                        , DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), model.noOfGuests, model.finalAmount, model.enquiry_ref, id
-                                        , model.advancepayment, model.partpayment, model.balancepayment, model.discount, model.commission, model.country, model.tds, model.booking_agent);
+                                            model.custName, model.custEmail, model.custPhone, model.bookingChannelId, model.details, userId
+                                            , DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), model.noOfGuests, model.finalAmount, model.enquiry_ref, id
+                                            , model.advancepayment, model.partpayment, model.balancepayment, model.discount, model.commission, model.country, model.tds, model.booking_agent);
 
-                    var ds = sqlHelper.GetDatasetByMySql(query);
+                        var ds = sqlHelper.GetDatasetByMySql(query);
 
-                    if ((roomds != null) && (roomds.Tables[0].Rows.Count != model.rooms.Count))
-                    {
-                        string deleteId = roomds.Tables[0].Rows
-                            .Cast<DataRow>()
-                            .Select(row => row["id"])
-                            .FirstOrDefault(id => !model.rooms.Any(room => room.id == Convert.ToInt32(id))).ToString();
-
-                        if (deleteId != null)
+                        if ((roomds != null) && (roomds.Tables[0].Rows.Count != model.rooms.Count))
                         {
-                            var detailsToDelete = roomds.Tables[0].AsEnumerable()
-                                .Where(row => row["ID"].ToString() == deleteId)
-                                .Select(row => new
-                                {
-                                    room_id = row["room_id"].ToString(),
-                                    property_id = row["property_id"].ToString(),
-                                    from_date = row["from_date"].ToString()
-                                })
-                                .FirstOrDefault();
+                            string deleteId = roomds.Tables[0].Rows
+                                .Cast<DataRow>()
+                                .Select(row => row["id"])
+                                .FirstOrDefault(id => !model.rooms.Any(room => room.id == Convert.ToInt32(id))).ToString();
+
+                            if (deleteId != null)
+                            {
+                                var detailsToDelete = roomds.Tables[0].AsEnumerable()
+                                    .Where(row => row["ID"].ToString() == deleteId)
+                                    .Select(row => new
+                                    {
+                                        room_id = row["room_id"].ToString(),
+                                        property_id = row["property_id"].ToString(),
+                                        from_date = row["from_date"].ToString()
+                                    })
+                                    .FirstOrDefault();
 
 
-                            query = string.Format(@"DELETE FROM reserve_rooms where reservation_id = {0} and id = {1}",
-                                                  id, deleteId);
+                                query = string.Format(@"DELETE FROM reserve_rooms where reservation_id = {0} and id = {1}",
+                                                      id, deleteId);
 
-                            var ds1 = sqlHelper.GetDatasetByMySql(query);
+                                var ds1 = sqlHelper.GetDatasetByMySql(query);
 
-                            DateTime parsedDate = DateTime.Parse(detailsToDelete.from_date);
-                            string from_date = parsedDate.ToString("yyyy-MM-dd");
+                                DateTime parsedDate = DateTime.Parse(detailsToDelete.from_date);
+                                string from_date = parsedDate.ToString("yyyy-MM-dd");
 
-                            query = string.Format(@"update inventory set booked_qty=booked_qty-{0} WHERE is_active='Y' AND property_id={1} AND room_id={2} AND inv_date='{3}'"
-                                            , 1, detailsToDelete.property_id, detailsToDelete.room_id, from_date.ToString());
+                                query = string.Format(@"update inventory set booked_qty=booked_qty-{0} WHERE is_active='Y' AND property_id={1} AND room_id={2} AND inv_date='{3}'"
+                                                , 1, detailsToDelete.property_id, detailsToDelete.room_id, from_date.ToString());
 
-                            var ds2 = sqlHelper.GetDatasetByMySql(query);
+                                var ds2 = sqlHelper.GetDatasetByMySql(query);
+                            }
                         }
+                        else
+                        {
+
+                            for (int i = 0; i < model.rooms.Count; i++)
+                            {
+                                query = string.Format(@"update reserve_rooms set years06 = {0}, years612 = {1}, years12 = {2}, amount = {3}, discount = {4}, new_ba = {5}, comments = '{6}'
+                                                    where id = {7};",
+                                 model.rooms[i].years06, model.rooms[i].years612, model.rooms[i].years12, model.rooms[i].amount, model.rooms[i].discount, model.rooms[i].newbamt, model.rooms[i].comments, model.rooms[i].id);
+
+                                DataSet ds1 = sqlHelper.GetDatasetByMySql(query);
+                            }
+                        }
+
+                        response.ActionStatus = "SUCCESS";
                     }
                     else
                     {
-
-                        for (int i = 0; i < model.rooms.Count; i++)
-                        {
-                            query = string.Format(@"update reserve_rooms set years06 = {0}, years612 = {1}, years12 = {2}, amount = {3}, discount = {4}, new_ba = {5}, comments = '{6}'
-                                                    where id = {7};",
-                             model.rooms[i].years06, model.rooms[i].years612, model.rooms[i].years12, model.rooms[i].amount, model.rooms[i].discount, model.rooms[i].newbamt, model.rooms[i].comments, model.rooms[i].id);
-
-                            DataSet ds1 = sqlHelper.GetDatasetByMySql(query);
-                        }
+                        return BadRequest("Invalid room details");
                     }
-
-                    response.ActionStatus = "SUCCESS";
-
                 }
                 else
                 {
@@ -1028,7 +1035,7 @@ namespace VTravel.Admin.Controllers
                             File = new FileDescription(file.FileName, filePath),
                             Folder = "reservation/" + resid + "/docs",
                             Overwrite = true,
-                            PublicId = guid + file.FileName,
+                            PublicId = guid + file.FileName + "_" + DateTime.Now.ToString("ddMMyyyyhhmmss"),
                             Invalidate = true
                         };
 

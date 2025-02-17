@@ -5,65 +5,24 @@ using Microsoft.AspNetCore.Mvc;
 using VTravel.HostWeb.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
+using MySql.Data.MySqlClient;
+using Dapper;
 using VTravel.HostWeb.Models;
-
 
 namespace VTravel.HostWeb.Controllers
 {
     
-    [Route("api/roomtype"), Authorize]
-    public class RoomTypeController : Controller
+    [Route("api/doctype"), 
+        Authorize(Roles = "ADMIN,SUB_ADMIN,OPERATIONS")
+        
+        ]
+    public class DocTypeController : Controller
     {
         private readonly IHostingEnvironment _hostingEnvironment;
-        public RoomTypeController(IHostingEnvironment hostingEnvironment)
+        public DocTypeController(IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
-            string projectRootPath = _hostingEnvironment.ContentRootPath;
-        }
-        
-            
-       
-
-        [HttpPost, Route("sort")]
-        public IActionResult Sort([FromBody] SortData model)
-        {
-            ApiResponse response = new ApiResponse();
-            response.ActionStatus = "FAILURE";
-            response.Message = string.Empty;
-
-            try
-            {
-
-                if (model != null)
-                {
-                 
-                    MySqlHelper sqlHelper = new MySqlHelper();
-
-                    var query = string.Format(@"UPDATE room SET sort_order=sort_order+{0} WHERE sort_order>={1};  
-                  UPDATE room SET sort_order={1} WHERE id={2}", model.pushDownValue,
-                                     model.sortOrder,model.itemId);
-
-                    DataSet ds = sqlHelper.GetDatasetByMySql(query);
-
-
-                    
-                    response.ActionStatus = "SUCCESS";
-                    response.Message ="products sorted";
-                }
-                else
-                {
-                    return BadRequest("Invalid sort product");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                response.ActionStatus = "EXCEPTION";
-                response.Message = "Something went wrong";
-            }
-            return new OkObjectResult(response);
-
-
+            string projectRootPath = _hostingEnvironment.ContentRootPath;//
         }
 
 
@@ -77,32 +36,21 @@ namespace VTravel.HostWeb.Controllers
             try
             {
 
-                List<RoomType> roomTypes = new List<RoomType>();
-                MySqlHelper sqlHelper = new MySqlHelper();
+             
 
-                var query = string.Format(@"select id,type_name,sort_order 
-                 FROM room_type WHERE is_active='Y' ORDER BY sort_order"
+                var query = string.Format(@"select id,doc_type_name,description,doc_abbr,default_doc 
+                 FROM doc_type WHERE is_active='Y' ORDER BY sort_order"
                                    );
 
-                DataSet ds = sqlHelper.GetDatasetByMySql(query);
-
-
-                foreach (DataRow r in ds.Tables[0].Rows)
+                using (var connection = new MySqlConnection(Startup.conStr))
                 {
 
-                    roomTypes.Add(
-                        new RoomType
-                        {
-                            id=Convert.ToInt32(r["id"].ToString()),
-                            typeName = r["type_name"].ToString()
-                        }
-                        );
+                    var results = connection.Query<DocType>(query);
+                    response.Data =  (List<DocType>)results;
+                    response.ActionStatus = "SUCCESS";
 
                 }
 
-
-                response.Data = roomTypes;
-                response.ActionStatus = "SUCCESS";
                    
                 
 
@@ -117,8 +65,9 @@ namespace VTravel.HostWeb.Controllers
 
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPost, Route("create")]
-        public IActionResult Create([FromBody] RoomType model)
+        public IActionResult Create([FromBody] BookingChannel model)
         {
             ApiResponse response = new ApiResponse();
             response.ActionStatus = "FAILURE";
@@ -132,9 +81,9 @@ namespace VTravel.HostWeb.Controllers
 
                     MySqlHelper sqlHelper = new MySqlHelper();
 
-                    var query = string.Format(@"INSERT INTO room_type(type_name,description) VALUES('{0}','{1}');
+                    var query = string.Format(@"INSERT INTO booking_channel(channel_name,description) VALUES('{0}','{1}');
                                          SELECT LAST_INSERT_ID() AS id;",
-                                     model.typeName, model.description);
+                                     model.channelName, model.description);
 
                     DataSet ds = sqlHelper.GetDatasetByMySql(query);
                     if (ds != null)
@@ -168,8 +117,9 @@ namespace VTravel.HostWeb.Controllers
 
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut, Route("update")]
-        public IActionResult Update([FromBody] RoomType model, int id)
+        public IActionResult Update([FromBody] BookingChannel model, int id)
         {
             ApiResponse response = new ApiResponse();
             response.ActionStatus = "FAILURE";
@@ -183,8 +133,8 @@ namespace VTravel.HostWeb.Controllers
 
                     MySqlHelper sqlHelper = new MySqlHelper();
 
-                    var query = string.Format(@"UPDATE room_type SET type_name='{0}',description='{1}' WHERE id={2}",
-                                     model.typeName, model.description, id);
+                    var query = string.Format(@"UPDATE booking_channel SET channel_name='{0}',description='{1}' WHERE id={2}",
+                                     model.channelName, model.description, id);
 
                     DataSet ds = sqlHelper.GetDatasetByMySql(query);
                     response.ActionStatus = "SUCCESS";
@@ -206,6 +156,7 @@ namespace VTravel.HostWeb.Controllers
 
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete, Route("delete")]
         public IActionResult Delete(int id)
         {
@@ -221,7 +172,7 @@ namespace VTravel.HostWeb.Controllers
 
                     MySqlHelper sqlHelper = new MySqlHelper();
 
-                    var query = string.Format(@"UPDATE room_type SET is_active='N' WHERE id={0}",
+                    var query = string.Format(@"UPDATE booking_channel SET is_active='N' WHERE id={0}",
                            id);
 
                     DataSet ds = sqlHelper.GetDatasetByMySql(query);

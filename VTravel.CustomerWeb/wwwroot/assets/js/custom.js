@@ -64,7 +64,7 @@ function loadCountryList() {
     
     $.get("api/data/get-country-list", function (result) {
 
-        alert(result.status);
+        //alert(result.status);
         console.log(JSON.stringify(result));
       
         result.data.forEach(function (e, i) {
@@ -365,10 +365,9 @@ function initAutocomplete() {
         const options = {
             componentRestrictions: { country: "in" },
         };
-        var autocomplete = new google.maps.places.Autocomplete(input, options, sessionToken);
+        var autocomplete = new google.maps.places.Autocomplete(input, options);
        
         autocomplete.addListener("place_changed", () => {
-           
             const place = autocomplete.getPlace();
 
             if (!place.geometry) {
